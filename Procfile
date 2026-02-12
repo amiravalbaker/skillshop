@@ -1,1 +1,1 @@
-web: gunicorn skillshop.config.wsgi
+web: gunicorn config.wsgi
