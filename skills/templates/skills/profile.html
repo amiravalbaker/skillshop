@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>My Profile</h2>
+
+<p><strong>Username:</strong> {{ profile.user.username }}</p>
+<p><strong>Email:</strong> {{ profile.user.email }}</p>
+<p><strong>Bio:</strong> {{ profile.bio|default:"(no bio yet)" }}</p>
+<p><strong>Provider:</strong> {{ profile.is_provider }}</p>
+
+<a href="{% url 'edit_profile' %}">Edit Profile</a>
+{% endblock %}
