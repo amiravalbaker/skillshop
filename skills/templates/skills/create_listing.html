@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+#{% load static %}
+
 {% block content %}
 <h2>Create a Listing</h2>
 
@@ -10,46 +12,64 @@
     {% endif %}
 
     <p>
-    {{ form.skill_choice.label_tag }}<br>
-    {{ form.skill_choice }}
-  </p>
-
-  <div id="new-skill-box" style="display:none;">
-    <p>
-      {{ form.new_skill.label_tag }}<br>
-      {{ form.new_skill }}
+        {{ form.skill_choice.label_tag }}<br>
+        {{ form.skill_choice }}
+        {% if form.skill_choice.errors %}
+          <div style="color:red;">{{ form.skill_choice.errors }}</div>
+        {% endif %}
     </p>
-  </div>
 
-  <p>{{ form.title.label_tag }}<br>{{ form.title }}</p>
-  <p>{{ form.description.label_tag }}<br>{{ form.description }}</p>
-  <p>{{ form.price.label_tag }}<br>{{ form.price }}</p>
-  <p>{{ form.is_active.label_tag }} {{ form.is_active }}</p>
+    <div id="new-skill-box" style="display:none;">
+        <p>
+            {{ form.new_skill.label_tag }}<br>
+            {{ form.new_skill }}
+            {% if form.new_skill.errors %}
+              <div style="color:red;">{{ form.new_skill.errors }}</div>
+            {% endif %}
+        </p>
+    </div>
+
+    <p>
+        {{ form.location_text.label_tag }}<br>
+        {{ form.location_text }}<br>
+        <small>{{ form.location_text.help_text }}</small>
+         {% if form.location_text.errors %}
+          <div style="color:red;">{{ form.location_text.errors }}</div>
+        {% endif %}
+    </p>
+
+
+    <p>{{ form.title.label_tag }}<br>{{ form.title }}</p>
+    <p>{{ form.description.label_tag }}<br>{{ form.description }}</p>
+    <p>{{ form.price.label_tag }}<br>{{ form.price }}</p>
+    <p>{{ form.is_active.label_tag }} {{ form.is_active }}</p>
 
     <button type="submit">Create</button>
 </form>
 
+<!--<script src="{% static 'skills/listing.js' %}"></script>-->
+
 <script>
-  (function() {
-    const NEW_VALUE = "__new__";
-    const selectEl = document.getElementById("id_skill_choice");
-    const box = document.getElementById("new-skill-box");
+    (function () {
+        const NEW_VALUE = "__new__";
+        const selectEl = document.getElementById("id_skill_choice");
+        const box = document.getElementById("new-skill-box");
 
-    function toggle() {
-      if (selectEl.value === NEW_VALUE) {
-        box.style.display = "block";
-      } else {
-        box.style.display = "none";
-        // clear input when not in use
-        const input = document.getElementById("id_new_skill");
-        if (input) input.value = "";
-      }
-    }
+        function toggle() {
+            if (selectEl.value === NEW_VALUE) {
+                box.style.display = "block";
+            } else {
+                box.style.display = "none";
+                // clear input when not in use
+                const input = document.getElementById("id_new_skill");
+                if (input) input.value = "";
+            }
+        }
 
-    if (selectEl) {
-      selectEl.addEventListener("change", toggle);
-      toggle(); // run once on page load
-    }
-  })();
+        if (selectEl) {
+            selectEl.addEventListener("change", toggle);
+            toggle(); // run once on page load
+        }
+    })();
 </script>
 {% endblock %}

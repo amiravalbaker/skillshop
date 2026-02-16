@@ -19,9 +19,13 @@ class ProfileForm(forms.ModelForm):
 NEW_SKILL_VALUE = "__new__"
 
 class ListingForm(forms.ModelForm):
-    skill_choice = forms.ChoiceField(label="Skill")
-    new_skill = forms.CharField(label="New skill name",required=False, max_length=100,
+    location_text = forms.CharField(
+        required=True,
+        max_length=120,
+        help_text="Enter a town/city or postcode"
     )
+    skill_choice = forms.ChoiceField(label="Skill")
+    new_skill = forms.CharField(label="New skill name",required=False, max_length=100,)
     
     class Meta:
         model = Listing

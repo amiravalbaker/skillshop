@@ -3,7 +3,8 @@ from django.http import HttpResponse
 from .forms import ProfileForm, SignUpForm, ListingForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from .models import  Listing
+from geopy.geocoders import Nominatim
+from .models import  Listing, Location
 
 # Create your views here.
 def index(request): return HttpResponse("Hello, World!")
@@ -59,6 +60,18 @@ def create_listing(request):
         form = ListingForm(request.POST)
         if form.is_valid():
             listing = form.save(commit=False)
+            location_text = form.cleaned_data["location_text"]
+            geolocator = Nominatim(user_agent="skillshop")
+            geo = geolocator.geocode(location_text)
+
+            if not geo:
+                form.add_error("location_text", "Could not find that location. Try a postcode or full town/city name.")
+            else:
+                loc_obj, _ = Location.objects.get_or_create(
+                    name=location_text.strip(),
+                    defaults={"latitude": geo.latitude, "longitude": geo.longitude}
+            )
+            listing.location = loc_obj
             listing.provider = profile
             listing.save()
             return redirect("home")

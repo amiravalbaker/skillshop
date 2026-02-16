@@ -26,6 +26,17 @@ class Skill(models.Model):
     def __str__(self):
         return self.name
     
+class Location(models.Model):
+    name = models.CharField(max_length=120)   # e.g. "London", "SW1A 1AA"
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+
+    class Meta:
+        unique_together = ("latitude", "longitude", "name")
+
+    def __str__(self):
+        return self.name
+
 class Listing(models.Model):
     provider = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="listings")
     skill = models.ForeignKey(Skill, on_delete=models.PROTECT, related_name="listings")
@@ -34,9 +45,11 @@ class Listing(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    location = models.ForeignKey(Location, on_delete=models.PROTECT, null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.title} ({self.skill.name})"
+    
