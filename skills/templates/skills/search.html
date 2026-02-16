@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h2>Search Services</h2>
+
+<form method="get">
+  <label>Skill</label><br>
+  <input type="text" name="skill" value="{{ skill_q }}"><br><br>
+
+  <label>Location (town/city or postcode)</label><br>
+  <input type="text" name="location" id="location-input" value="{{ location_q }}">
+  <button type="button" id="use-location-btn">Use my location</button><br><br>
+
+  <input type="hidden" name="lat" id="lat">
+  <input type="hidden" name="lon" id="lon">
+
+  <label>Radius (km)</label><br>
+  <input type="number" name="radius" value="{{ radius_km }}" min="1"><br><br>
+
+  <button type="submit">Search</button>
+</form>
+
+<hr>
+
+<ul>
+  {% for listing, dist in results %}
+    <li>
+      <strong>{{ listing.title }}</strong> — {{ listing.skill.name }} — £{{ listing.price }}<br>
+      Provider: {{ listing.provider.display_name }}<br>
+      Location: {{ listing.location.name }}<br>
+      {% if dist != None %}
+        Distance: {{ dist|floatformat:1 }} km
+      {% endif %}
+    </li>
+  {% empty %}
+    <li>No results found.</li>
+  {% endfor %}
+</ul>
+
+<script src="{% static 'js/geolocate.js' %}"></script>
+{% endblock %}

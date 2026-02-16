@@ -6,4 +6,5 @@ urlpatterns = [
     path("profile/", views.profile_view, name="profile"),
     path("profile/edit/", views.edit_profile, name="edit_profile"),
     path("listing/create/", views.create_listing, name="create_listing"),  
+    path("search/", views.search, name="search"),
 ]

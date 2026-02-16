@@ -4,6 +4,7 @@ from .forms import ProfileForm, SignUpForm, ListingForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from geopy.geocoders import Nominatim
+from geopy.distance import geodesic 
 from .models import  Listing, Location
 
 # Create your views here.
@@ -79,3 +80,53 @@ def create_listing(request):
         form = ListingForm()
 
     return render(request, "skills/create_listing.html", {"form": form})
+
+def search(request):
+    listings = Listing.objects.select_related("skill", "provider", "location").filter(is_active=True)
+
+    skill_q = request.GET.get("skill", "").strip()
+    location_q = request.GET.get("location", "").strip()
+    radius_km = request.GET.get("radius", "10").strip()
+
+    # Optional browser coords
+    lat = request.GET.get("lat")
+    lon = request.GET.get("lon")
+
+    if skill_q:
+        listings = listings.filter(skill__name__icontains=skill_q)
+    
+    # Determine user coords
+    user_coords = None
+    if lat and lon:
+        user_coords = (float(lat), float(lon))
+    elif location_q:
+        geo = Nominatim(user_agent="skillshop").geocode(location_q)
+        if geo:
+            user_coords = (geo.latitude, geo.longitude)
+    
+    # Filter by distance (uses listing.location coords)
+    results = []
+    if user_coords and radius_km:
+        try:
+            r = float(radius_km)
+        except ValueError:
+            r = 10.0
+
+        for listing in listings:
+            if not listing.location:
+                continue
+            listing_coords = (listing.location.latitude, listing.location.longitude)
+            d = geodesic(user_coords, listing_coords).km
+            if d <= r:
+                results.append((listing, d))
+        # sort nearest first
+        results.sort(key=lambda x: x[1])
+    else:
+        results = [(l, None) for l in listings]
+    
+    return render(request, "skills/search.html", {
+        "results": results,
+        "skill_q": skill_q,
+        "location_q": location_q,
+        "radius_km": radius_km,
+    })
