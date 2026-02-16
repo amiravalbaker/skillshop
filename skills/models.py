@@ -12,13 +12,24 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
+class Skill(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
 
-#To create a user profile on sign-up we need to include:
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+    def __str__(self):
+        return self.name
+    
+class Listing(models.Model):
+    provider = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="listings")
+    skill = models.ForeignKey(Skill, on_delete=models.PROTECT, related_name="listings")
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-@receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
+    class Meta:
+        ordering = ["-created_at"]
 
+    def __str__(self):
+        return f"{self.title} ({self.skill.name})"

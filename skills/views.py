@@ -1,13 +1,16 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse 
-from .forms import ProfileForm, SignUpForm
+from .forms import ProfileForm, SignUpForm, ListingForm
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from .models import  Listing
 
 # Create your views here.
 def index(request): return HttpResponse("Hello, World!")
 
 def home(request):
-    return render(request, "skills/home.html")
+    listings = Listing.objects.select_related("skill", "provider", "provider__user").filter(is_active=True)
+    return render(request, "skills/home.html", {"listings": listings})
 
 def signup(request):
     if request.method == "POST":
@@ -42,3 +45,24 @@ def edit_profile(request):
     return render(request, "skills/edit_profile.html", {
         "form": form
     })
+
+@login_required
+def create_listing(request):
+    profile = request.user.profile
+
+    # Only providers can create listings
+    if not profile.is_provider:
+        # Either raise PermissionDenied OR redirect to profile edit
+        return redirect("edit_profile")
+
+    if request.method == "POST":
+        form = ListingForm(request.POST)
+        if form.is_valid():
+            listing = form.save(commit=False)
+            listing.provider = profile
+            listing.save()
+            return redirect("home")
+    else:
+        form = ListingForm()
+
+    return render(request, "skills/create_listing.html", {"form": form})

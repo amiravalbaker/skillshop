@@ -1,6 +1,19 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h2>Welcome {{ user.username }}</h2>
-<p>You are logged in.</p>
+
+<h2>Services near you</h2>
+
+  <ul>
+    {% for listing in listings %}
+      <li>
+        <strong>{{ listing.title }}</strong>
+        — {{ listing.skill.name }}
+        — £{{ listing.price }}
+        <br>
+        Provider: {{ listing.provider.user.username }}
+      </li>
+    {% empty %}
+      <li>No services listed yet.</li>
+    {% endfor %}
+  </ul>
 {% endblock %}

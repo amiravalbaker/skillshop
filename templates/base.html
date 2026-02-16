@@ -5,11 +5,13 @@
 </head>
 <body>
 
-<nav>
   <a href="{% url 'home' %}">Home</a>
 
   {% if user.is_authenticated %}
       | <a href="{% url 'profile' %}">My Profile</a>
+      {% if user.profile.is_provider %}
+        | <a href="{% url 'create_listing' %}">Create Listing</a>
+      {% endif %}
       | <a href="{% url 'account_logout' %}">Logout</a>
   {% else %}
       | <a href="{% url 'account_login' %}">Login</a>
