@@ -3,17 +3,17 @@
 
 <h2>Services near you</h2>
 
-  <ul>
+<ul>
     {% for listing in listings %}
-      <li>
+    <li>
         <strong>{{ listing.title }}</strong>
         — {{ listing.skill.name }}
         — £{{ listing.price }}
         <br>
-        Provider: {{ listing.provider.user.username }}
-      </li>
+        Provider: {{ listing.provider.display_name }}
+    </li>
     {% empty %}
-      <li>No services listed yet.</li>
+    <li>No services listed yet.</li>
     {% endfor %}
-  </ul>
+</ul>
 {% endblock %}
