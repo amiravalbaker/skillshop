@@ -1,28 +1,45 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
-<h2>Available services</h2>
 
-<div class="cards">
-  {% for listing in listings %}
-    <a class="card" href="{% url 'listing_detail' listing.id %}">
-      <div class="card-img">
-        {% if listing.photo %}
-          <img src="{{ listing.photo.url }}" alt="Listing photo">
-        {% elif listing.provider.profile_image %}
-          <img src="{{ listing.provider.profile_image.url }}" alt="Provider photo" style="max-width:140px; height:auto;">
+<!-- Hero Section -->
+<section class="hero d-flex justify-content-center">
+  <img src="{% static 'images/skillshop_main.jpg' %}" alt="SkillShop" class="hero-img img-fluid">
+</section>
+
+<!-- CARDS -->
+<div class="container text-center">
+  <div class="row justify-content-center g-4">
+
+    <!-- CARD 1 -->
+
+    <div class="col-12 col-md-6">
+
+      <div class="card p-4 shadow-sm">
+        <h4 class="mb-3">Do you need the services of a skilled person?</h4>
+        <a class="btn btn-dark" href="{% url 'search' %}">Search</a>
+      </div>
+
+    </div>
+
+    <!-- CARD 2 -->
+    <div class="col-12 col-md-6">
+
+      <div class="card p-4 shadow-sm">
+        <h4 class="mb-3">Do you have a skill you would like to offer?</h4>
+        {% if user.is_authenticated %}
+        {% if user.profile.is_provider %}
+        <a class="btn btn-dark" href="{% url 'create_listing' %}">Create a listing</a>
+        {% else %}
+        <a class="btn btn-dark" href="{% url 'edit_profile' %}">Become a provider</a>
+        {% endif %}
+        {% else %}
+        <a class="btn btn-dark" href="{% url 'account_signup' %}">Sign Up</a>
         {% endif %}
       </div>
-
-      <div class="card-title">{{ listing.skill.name }}</div>
-
-      <div class="card-meta">
-        <div><strong>Provider:</strong> {{ listing.provider.display_name }}</div>
-        <div><strong>Location:</strong> {% if listing.location %}{{ listing.location.name }}{% else %}Not set{% endif %}</div>
-      </div>
-    </a>
-  {% empty %}
-    <p>No listings yet.</p>
-  {% endfor %}
+    </div>
+  </div>
 </div>
+
 {% endblock %}

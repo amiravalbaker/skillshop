@@ -82,7 +82,7 @@ def create_listing(request):
     return render(request, "skills/create_listing.html", {"form": form})
 
 def search(request):
-    listings = Listing.objects.select_related("skill", "provider", "provider_user","location").filter(is_active=True)
+    listings = Listing.objects.select_related("skill", "provider", "provider__user","location").filter(is_active=True)
 
     skill_q = request.GET.get("skill", "").strip()
     location_q = request.GET.get("location", "").strip()
