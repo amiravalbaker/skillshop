@@ -29,7 +29,7 @@ class ListingForm(forms.ModelForm):
     
     class Meta:
         model = Listing
-        fields = ["title", "description", "price", "is_active"]
+        fields = ["description", "price", "is_active"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

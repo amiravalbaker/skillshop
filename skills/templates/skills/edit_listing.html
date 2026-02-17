@@ -1,31 +1,25 @@
 {% extends "base.html" %}
-#{% load static %}
+{% load static %}
 
 {% block content %}
-<h2>Create a Listing</h2>
+<h2>Edit Listing: {{ listing.skill.name }}</h2>
 
 <form method="post">
     {% csrf_token %}
 
     {% if form.non_field_errors %}
-    <div style="color:red;">{{ form.non_field_errors }}</div>
+      <div style="color:red;">{{ form.non_field_errors }}</div>
     {% endif %}
 
     <p>
         {{ form.skill_choice.label_tag }}<br>
         {{ form.skill_choice }}
-        {% if form.skill_choice.errors %}
-          <div style="color:red;">{{ form.skill_choice.errors }}</div>
-        {% endif %}
     </p>
 
     <div id="new-skill-box" style="display:none;">
         <p>
             {{ form.new_skill.label_tag }}<br>
             {{ form.new_skill }}
-            {% if form.new_skill.errors %}
-              <div style="color:red;">{{ form.new_skill.errors }}</div>
-            {% endif %}
         </p>
     </div>
 
@@ -33,7 +27,7 @@
         {{ form.location_text.label_tag }}<br>
         {{ form.location_text }}<br>
         <small>{{ form.location_text.help_text }}</small>
-         {% if form.location_text.errors %}
+        {% if form.location_text.errors %}
           <div style="color:red;">{{ form.location_text.errors }}</div>
         {% endif %}
     </p>
@@ -42,9 +36,8 @@
     <p>{{ form.price.label_tag }}<br>{{ form.price }}</p>
     <p>{{ form.is_active.label_tag }} {{ form.is_active }}</p>
 
-    <button type="submit">Create</button>
+    <button type="submit">Save changes</button>
 </form>
 
-<script src="{% static 'js/listing.js' %}"></script>
-
+<script src="{% static 'skills/listing.js' %}"></script>
 {% endblock %}

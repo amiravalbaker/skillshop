@@ -7,4 +7,5 @@ urlpatterns = [
     path("profile/edit/", views.edit_profile, name="edit_profile"),
     path("listing/create/", views.create_listing, name="create_listing"),  
     path("search/", views.search, name="search"),
+    path("listing/<int:listing_id>/edit/", views.edit_listing, name="edit_listing"),
 ]

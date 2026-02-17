@@ -40,7 +40,6 @@ class Location(models.Model):
 class Listing(models.Model):
     provider = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="listings")
     skill = models.ForeignKey(Skill, on_delete=models.PROTECT, related_name="listings")
-    title = models.CharField(max_length=200)
     description = models.TextField()
     price = models.DecimalField(max_digits=8, decimal_places=2)
     is_active = models.BooleanField(default=True)

@@ -1,17 +1,17 @@
-from django.shortcuts import render, redirect
 from django.http import HttpResponse 
-from .forms import ProfileForm, SignUpForm, ListingForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import render, redirect, get_object_or_404
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic 
-from .models import  Listing, Location
+from .models import  Profile, Listing, Location, Skill
+from .forms import ProfileForm, SignUpForm, ListingForm
 
 # Create your views here.
 def index(request): return HttpResponse("Hello, World!")
 
 def home(request):
-    listings = Listing.objects.select_related("skill", "provider", "provider__user").filter(is_active=True)
+    listings = Listing.objects.select_related("skill", "provider", "provider__user", "location").filter(is_active=True)
     return render(request, "skills/home.html", {"listings": listings})
 
 def signup(request):
@@ -27,7 +27,7 @@ def signup(request):
 
 @login_required
 def profile_view(request):
-    profile = request.user.profile
+    profile, _ = Profile.objects.get_or_create(user=request.user)
     return render(request, "skills/profile.html", {
         "profile": request.user.profile
     })
@@ -61,15 +61,15 @@ def create_listing(request):
         form = ListingForm(request.POST)
         if form.is_valid():
             listing = form.save(commit=False)
-            location_text = form.cleaned_data["location_text"]
-            geolocator = Nominatim(user_agent="skillshop")
-            geo = geolocator.geocode(location_text)
+
+            location_text = form.cleaned_data["location_text"].strip()
+            geo= Nominatim(user_agent="skillshop").geocode(location_text)
 
             if not geo:
                 form.add_error("location_text", "Could not find that location. Try a postcode or full town/city name.")
             else:
                 loc_obj, _ = Location.objects.get_or_create(
-                    name=location_text.strip(),
+                    name=location_text,
                     defaults={"latitude": geo.latitude, "longitude": geo.longitude}
             )
             listing.location = loc_obj
@@ -129,4 +129,45 @@ def search(request):
         "skill_q": skill_q,
         "location_q": location_q,
         "radius_km": radius_km,
+    })
+
+@login_required
+def edit_listing(request, listing_id):
+    listing = get_object_or_404(Listing, id=listing_id)
+
+    # Owner-only permission
+    if listing.provider != request.user.profile:
+        raise PermissionDenied
+
+    # Pre-fill location_text from existing Location
+    initial = {}
+    if listing.location:
+        initial["location_text"] = listing.location.name
+
+    if request.method == "POST":
+        form = ListingForm(request.POST, instance=listing)
+        if form.is_valid():
+            updated = form.save(commit=False)
+
+            # Geocode and set location (same as create)
+            location_text = form.cleaned_data.get("location_text", "").strip()
+            geo = Nominatim(user_agent="skillshop").geocode(location_text)
+
+            if not geo:
+                form.add_error("location_text", "Could not find that location. Try a postcode or full town/city name.")
+            else:
+                loc_obj, _ = Location.objects.get_or_create(
+                    name=location_text,
+                    defaults={"latitude": geo.latitude, "longitude": geo.longitude},
+                )
+                updated.location = loc_obj
+                updated.provider = listing.provider
+                updated.save()
+                return redirect("home")
+    else:
+        form = ListingForm(instance=listing, initial=initial)
+
+    return render(request, "skills/edit_listing.html", {
+        "form": form,
+        "listing": listing,
     })

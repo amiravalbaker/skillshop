@@ -26,7 +26,7 @@
 <ul>
   {% for listing, dist in results %}
     <li>
-      <strong>{{ listing.title }}</strong> — {{ listing.skill.name }} — £{{ listing.price }}<br>
+      <strong>{{ listing.skill.name }}</strong> — £{{ listing.price }}<br>
       Provider: {{ listing.provider.display_name }}<br>
       Location: {{ listing.location.name }}<br>
       {% if dist != None %}
