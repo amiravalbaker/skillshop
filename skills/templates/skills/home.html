@@ -1,24 +1,28 @@
 {% extends "base.html" %}
+
 {% block content %}
+<h2>Available services</h2>
 
-<h2>Services near you</h2>
-
-<ul>
-    {% for listing in listings %}
-    <li>
-        <strong>{{ listing.skill.name }}</strong>
-        — £{{ listing.price }}
-        <br>
-        Provider: {{ listing.provider.display_name }}
-        <br>
-        Location: {{ listing.location.name }}
-        {% if user.is_authenticated and listing.provider == user.profile %}
-        <a href="{% url 'edit_listing' listing.id %}">Edit</a>
+<div class="cards">
+  {% for listing in listings %}
+    <a class="card" href="{% url 'listing_detail' listing.id %}">
+      <div class="card-img">
+        {% if listing.photo %}
+          <img src="{{ listing.photo.url }}" alt="Listing photo">
+        {% elif listing.provider.profile_image %}
+          <img src="{{ listing.provider.profile_image.url }}" alt="Provider photo" style="max-width:140px; height:auto;">
         {% endif %}
+      </div>
 
-    </li>
-    {% empty %}
-    <li>No services listed yet.</li>
-    {% endfor %}
-</ul>
+      <div class="card-title">{{ listing.skill.name }}</div>
+
+      <div class="card-meta">
+        <div><strong>Provider:</strong> {{ listing.provider.display_name }}</div>
+        <div><strong>Location:</strong> {% if listing.location %}{{ listing.location.name }}{% else %}Not set{% endif %}</div>
+      </div>
+    </a>
+  {% empty %}
+    <p>No listings yet.</p>
+  {% endfor %}
+</div>
 {% endblock %}

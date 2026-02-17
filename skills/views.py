@@ -37,7 +37,7 @@ def edit_profile(request):
     profile = request.user.profile
 
     if request.method == "POST":
-        form = ProfileForm(request.POST, instance=profile)
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
             return redirect("profile")
@@ -58,7 +58,7 @@ def create_listing(request):
         return redirect("edit_profile")
 
     if request.method == "POST":
-        form = ListingForm(request.POST)
+        form = ListingForm(request.POST, request.FILES)
         if form.is_valid():
             listing = form.save(commit=False)
 
@@ -82,7 +82,7 @@ def create_listing(request):
     return render(request, "skills/create_listing.html", {"form": form})
 
 def search(request):
-    listings = Listing.objects.select_related("skill", "provider", "location").filter(is_active=True)
+    listings = Listing.objects.select_related("skill", "provider", "provider_user","location").filter(is_active=True)
 
     skill_q = request.GET.get("skill", "").strip()
     location_q = request.GET.get("location", "").strip()
@@ -145,7 +145,7 @@ def edit_listing(request, listing_id):
         initial["location_text"] = listing.location.name
 
     if request.method == "POST":
-        form = ListingForm(request.POST, instance=listing)
+        form = ListingForm(request.POST, request.FILES, instance=listing)
         if form.is_valid():
             updated = form.save(commit=False)
 
@@ -171,3 +171,11 @@ def edit_listing(request, listing_id):
         "form": form,
         "listing": listing,
     })
+
+def listing_detail(request, listing_id):
+    listing = get_object_or_404(
+        Listing.objects.select_related("skill", "provider", "provider__user", "location"),
+        id=listing_id,
+        is_active=True
+    )
+    return render(request, "skills/listing_detail.html", {"listing": listing})

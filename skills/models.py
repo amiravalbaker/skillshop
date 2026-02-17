@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-#from cloudinary.models import CloudinaryField
+from cloudinary.models import CloudinaryField
 
 # Create your models here.
 class Profile(models.Model):
@@ -9,7 +9,7 @@ class Profile(models.Model):
     last_name = models.CharField(max_length=150, blank=True)
     bio = models.TextField(blank=True)
     is_provider =models.BooleanField(default=False)
-    #profile_image = CloudinaryField('image',default='placeholder')
+    profile_image = CloudinaryField('image', blank=True, null=True)
 
     def __str__(self):
         return self.user.username
@@ -45,10 +45,11 @@ class Listing(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     location = models.ForeignKey(Location, on_delete=models.PROTECT, null=True, blank=True)
+    photo = CloudinaryField("image", blank=True, null=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.title} ({self.skill.name})"
+        return f"{self.skill.name} ({self.provider.user.username})"
     

@@ -3,9 +3,14 @@
 {% block content %}
 <h2>My Profile</h2>
 
-<p><strong>Username:</strong> {{ profile.user.username }}</p>
-<p><strong>Email:</strong> {{ profile.user.email }}</p>
-<p><strong>Bio:</strong> {{ profile.bio|default:"(no bio yet)" }}</p>
+{% if profile.profile_image %}
+  <img src="{{ profile.profile_image.url }}" alt="Profile image" style="max-width:140px; height:auto;">
+{% else %}
+  <p>(No profile photo uploaded)</p>
+{% endif %}
+
+<p><strong>Name:</strong> {{ profile.display_name }}</p>
+<p><strong>Bio:</strong> {{ profile.bio|default:"(No bio yet)" }}</p>
 <p><strong>Provider:</strong> {{ profile.is_provider }}</p>
 
 <a href="{% url 'edit_profile' %}">Edit Profile</a>

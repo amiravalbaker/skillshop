@@ -14,7 +14,7 @@ class SignUpForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ["first_name", "last_name","bio", "is_provider"]
+        fields = ["first_name", "last_name","bio", "is_provider","profile_image"]
 
 NEW_SKILL_VALUE = "__new__"
 
