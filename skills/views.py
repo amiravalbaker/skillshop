@@ -71,22 +71,24 @@ def create_listing(request):
                 loc_obj, _ = Location.objects.get_or_create(
                     name=location_text,
                     defaults={"latitude": geo.latitude, "longitude": geo.longitude}
-            )
-            listing.location = loc_obj
-            listing.provider = profile
-            listing.save()
-            return redirect("home")
+                )
+                listing.location = loc_obj
+                listing.provider = profile
+                listing.save()
+                return redirect("home")
     else:
         form = ListingForm()
 
     return render(request, "skills/create_listing.html", {"form": form})
 
 def search(request):
-    listings = Listing.objects.select_related("skill", "provider", "provider__user","location").filter(is_active=True)
+    listings = Listing.objects.select_related("skill", "provider", "provider__user", "location").filter(is_active=True)
 
     skill_q = request.GET.get("skill", "").strip()
     location_q = request.GET.get("location", "").strip()
-    radius_km = request.GET.get("radius", "10").strip()
+
+    # miles (default 15)
+    radius_miles = request.GET.get("radius", "15").strip()
 
     # Optional browser coords
     lat = request.GET.get("lat")
@@ -97,38 +99,70 @@ def search(request):
     
     # Determine user coords
     user_coords = None
-    if lat and lon:
-        user_coords = (float(lat), float(lon))
-    elif location_q:
-        geo = Nominatim(user_agent="skillshop").geocode(location_q)
-        if geo:
-            user_coords = (geo.latitude, geo.longitude)
-    
-    # Filter by distance (uses listing.location coords)
-    results = []
-    if user_coords and radius_km:
-        try:
-            r = float(radius_km)
-        except ValueError:
-            r = 10.0
+    location_error = None
 
+    # Determine whether the user attempted location filtering at all
+    attempted_location_filter = bool(location_q) or (lat and lon)
+
+    # Prefer browser coordinates if present
+    if lat and lon:
+        try:
+            user_coords = (float(lat), float(lon))
+        except ValueError:
+            user_coords = None
+            location_error = "Could not read your browser location. Please type your postcode/town."
+    
+    
+     # Otherwise geocode typed location (avoid "Current location ..." text)
+    if user_coords is None and location_q:
+        if location_q.lower().startswith("current location"):
+            location_error = "Your browser location was unavailable. Please type your postcode/town."
+        else:
+            geo = Nominatim(user_agent="skillshop").geocode(location_q)
+            if geo:
+                user_coords = (geo.latitude, geo.longitude)
+            else:
+                location_error = "Could not find that location. Try a full postcode or town/city name."
+    
+     # Parse radius in miles
+    try:
+        r_miles = float(radius_miles) if radius_miles else 15.0
+    except ValueError:
+        r_miles = 15.0
+    
+    # If the user attempted location filtering but we couldn't get coords => show NO results
+    if attempted_location_filter and user_coords is None:
+
+    # Filter by distance (uses listing.location coords)
+        return render(request, "skills/search.html", {
+            "results": [],
+            "skill_q": skill_q,
+            "location_q": location_q,
+            "radius_miles": radius_miles,
+            "location_error": location_error or "Please enter a valid location.",
+        })
+
+    # Build results
+    results = []
+    if user_coords:
         for listing in listings:
             if not listing.location:
                 continue
             listing_coords = (listing.location.latitude, listing.location.longitude)
-            d = geodesic(user_coords, listing_coords).km
-            if d <= r:
-                results.append((listing, d))
-        # sort nearest first
+            d_miles = geodesic(user_coords, listing_coords).miles
+            if d_miles <= r_miles:
+                results.append((listing, d_miles))
         results.sort(key=lambda x: x[1])
     else:
+        # No location filter used => show all listings with no distance
         results = [(l, None) for l in listings]
-    
+
     return render(request, "skills/search.html", {
         "results": results,
         "skill_q": skill_q,
         "location_q": location_q,
-        "radius_km": radius_km,
+        "radius_miles": radius_miles,
+        "location_error": location_error,
     })
 
 @login_required

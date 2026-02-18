@@ -14,63 +14,76 @@
 
     <div class="col-12 col-md-5">
       <label class="form-label">Location (town/city or postcode)</label>
+
       <div class="input-group">
         <input class="form-control" type="text" name="location" id="location-input" value="{{ location_q }}">
         <button class="btn btn-outline-secondary" type="button" id="use-location-btn">Use my location</button>
+        <button class="btn btn-outline-secondary" type="button" id="clear-location-btn">Clear</button>
+      </div>
+
+      <div id="geo-status" class="form-text text-muted mt-1">
+        Tip: “Use my location” may be approximate on some devices. If results look wrong, type your postcode.
       </div>
 
       <input type="hidden" name="lat" id="lat">
       <input type="hidden" name="lon" id="lon">
     </div>
 
-    <div class="col-12 col-md-3">
-      <label class="form-label">Radius (km)</label>
-      <input class="form-control" type="number" name="radius" value="{{ radius_km }}" min="1">
-    </div>
+  <div class="col-12 col-md-3">
+    <label class="form-label">Radius (miles)</label>
+    <input class="form-control" type="number" name="radius" value="{{ radius_miles }}" min="1">
+  </div>
 
-    <div class="col-12">
-      <button class="btn btn-primary" type="submit">Search</button>
-      <a class="btn btn-outline-secondary ms-2" href="{% url 'search' %}">Clear</a>
-    </div>
+  <div class="col-12">
+    <button class="btn btn-primary" type="submit">Search</button>
+    <a class="btn btn-outline-secondary ms-2" href="{% url 'search' %}">Clear</a>
+  </div>
 
   </div>
 </form>
 
+{% if location_error %}
+  <div class="alert alert-warning mt-3">
+    {{ location_error }}
+  </div>
+{% endif %}
+
+
 <div class="row g-3">
   {% for listing, dist in results %}
-    <div class="col-12 col-md-6 col-lg-4">
-      <a href="{% url 'listing_detail' listing.id %}" class="text-decoration-none text-dark">
-        <div class="card shadow-sm h-100">
+  <div class="col-12 col-md-6 col-lg-4">
+    <a href="{% url 'listing_detail' listing.id %}" class="text-decoration-none text-dark">
+      <div class="card shadow-sm h-100">
 
-          {% if listing.photo %}
-            <img src="{{ listing.photo.url }}" class="card-img-top" alt="Listing photo"
-                 style="height: 180px; object-fit: cover;">
-          {% elif listing.provider.profile_image %}
-            <img src="{{ listing.provider.profile_image.url }}" class="card-img-top" alt="Provider photo"
-                 style="height: 180px; object-fit: cover;">
+        {% if listing.photo %}
+        <img src="{{ listing.photo.url }}" class="card-img-top" alt="Listing photo"
+          style="height: 180px; object-fit: cover;">
+        {% elif listing.provider.profile_image %}
+        <img src="{{ listing.provider.profile_image.url }}" class="card-img-top" alt="Provider photo"
+          style="height: 180px; object-fit: cover;">
+        {% endif %}
+
+        <div class="card-body">
+          <h5 class="card-title mb-2">{{ listing.skill.name }}</h5>
+
+          <p class="card-text mb-1">
+            <strong>{{ listing.provider.display_name }}</strong>
+          </p>
+
+          <p class="card-text mb-2">
+            {% if listing.location %}{{ listing.location.name }}{% else %}Not set{% endif %}
+          </p>
+
+          {% if dist != None %}
+          <span class="badge text-bg-secondary">{{ dist|floatformat:1 }} miles</span>
           {% endif %}
-
-          <div class="card-body">
-            <h5 class="card-title mb-2">{{ listing.skill.name }}</h5>
-
-            <p class="card-text mb-1">
-              <strong>{{ listing.provider.display_name }}</strong>
-            </p>
-
-            <p class="card-text mb-2">
-              {% if listing.location %}{{ listing.location.name }}{% else %}Not set{% endif %}
-            </p>
-
-            {% if dist != None %}
-              <span class="badge text-bg-secondary">{{ dist|floatformat:1 }} km</span>
-            {% endif %}
-          </div>
-
         </div>
-      </a>
-    </div>
+
+      </div>
+    </a>
+  </div>
   {% empty %}
-    <p>No results found.</p>
+  <p>No results found.</p>
   {% endfor %}
 </div>
 
