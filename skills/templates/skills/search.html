@@ -29,23 +29,23 @@
       <input type="hidden" name="lon" id="lon">
     </div>
 
-  <div class="col-12 col-md-3">
-    <label class="form-label">Radius (miles)</label>
-    <input class="form-control" type="number" name="radius" value="{{ radius_miles }}" min="1">
-  </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label">Radius (miles)</label>
+      <input class="form-control" type="number" name="radius" value="{{ radius_miles }}" min="1">
+    </div>
 
-  <div class="col-12">
-    <button class="btn btn-primary" type="submit">Search</button>
-    <a class="btn btn-outline-secondary ms-2" href="{% url 'search' %}">Clear</a>
-  </div>
+    <div class="col-12">
+      <button class="btn btn-primary" type="submit">Search</button>
+      <a class="btn btn-outline-secondary ms-2" href="{% url 'search' %}">Clear</a>
+    </div>
 
   </div>
 </form>
 
 {% if location_error %}
-  <div class="alert alert-warning mt-3">
-    {{ location_error }}
-  </div>
+<div class="alert alert-warning mt-3">
+  {{ location_error }}
+</div>
 {% endif %}
 
 
@@ -76,6 +76,17 @@
 
           {% if dist != None %}
           <span class="badge text-bg-secondary">{{ dist|floatformat:1 }} miles</span>
+          {% endif %}
+
+          {% if listing.review_count %}
+          <div class="mt-2">
+            <span class="badge text-bg-warning text-dark">
+              {{ listing.avg_rating|floatformat:1 }}/5
+            </span>
+            <small class="text-muted">({{ listing.review_count }})</small>
+          </div>
+          {% else %}
+          <small class="text-muted">No reviews yet</small>
           {% endif %}
         </div>
 

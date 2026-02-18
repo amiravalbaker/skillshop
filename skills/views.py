@@ -1,11 +1,12 @@
 from django.http import HttpResponse 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.db.models import Avg, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic 
-from .models import  Profile, Listing, Location, Skill
-from .forms import ProfileForm, SignUpForm, ListingForm
+from .models import  Profile, Listing, Location, Skill, Review
+from .forms import ProfileForm, SignUpForm, ListingForm, ReviewForm 
 
 # Create your views here.
 def index(request): return HttpResponse("Hello, World!")
@@ -82,8 +83,8 @@ def create_listing(request):
     return render(request, "skills/create_listing.html", {"form": form})
 
 def search(request):
-    listings = Listing.objects.select_related("skill", "provider", "provider__user", "location").filter(is_active=True)
-
+    listings = Listing.objects.select_related("skill", "provider", "provider__user", "location").filter(is_active=True).annotate(avg_rating=Avg("reviews__rating"), review_count=Count("reviews"))
+    
     skill_q = request.GET.get("skill", "").strip()
     location_q = request.GET.get("location", "").strip()
 
@@ -212,4 +213,39 @@ def listing_detail(request, listing_id):
         id=listing_id,
         is_active=True
     )
-    return render(request, "skills/listing_detail.html", {"listing": listing})
+# Aggregate rating stats for this listing
+    rating_stats = listing.reviews.aggregate(avg=Avg("rating"), count=Count("id"))
+
+    # Show all reviews
+    reviews = listing.reviews.select_related("reviewer", "reviewer__user")
+
+    form = None
+    user_review = None
+
+    if request.user.is_authenticated:
+        # ensure profile exists
+        reviewer = request.user.profile
+        user_review = Review.objects.filter(listing=listing, reviewer=reviewer).first()
+
+        # Don't allow provider to review their own listing
+        can_review = (listing.provider_id != reviewer.id)
+
+        if can_review:
+            if request.method == "POST":
+                form = ReviewForm(request.POST, instance=user_review)
+                if form.is_valid():
+                    obj = form.save(commit=False)
+                    obj.listing = listing
+                    obj.reviewer = reviewer
+                    obj.save()
+                    return redirect("listing_detail", listing_id=listing.id)
+            else:
+                form = ReviewForm(instance=user_review)
+
+    return render(request, "skills/listing_detail.html", {
+        "listing": listing,
+        "reviews": reviews,
+        "rating_stats": rating_stats,
+        "review_form": form,
+        "user_review": user_review,                                                    
+    })

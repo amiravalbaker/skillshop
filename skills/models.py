@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from cloudinary.models import CloudinaryField
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Create your models here.
 class Profile(models.Model):
@@ -52,4 +53,21 @@ class Listing(models.Model):
 
     def __str__(self):
         return f"{self.skill.name} ({self.provider.user.username})"
-    
+
+class Review(models.Model):
+    listing = models.ForeignKey("Listing", on_delete=models.CASCADE, related_name="reviews")
+    reviewer = models.ForeignKey("Profile", on_delete=models.CASCADE, related_name="reviews_written")
+
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    comment = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("listing", "reviewer")  # one review per user per listing
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.rating}/5 by {self.reviewer.user.username} on {self.listing_id}"

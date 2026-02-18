@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django_summernote.admin import SummernoteModelAdmin
-from .models import Profile, Skill, Listing, Location
-
+from .models import Profile, Skill, Listing, Location, Review
 
 # Register your models here.
 @admin.register(Profile)
@@ -19,3 +18,7 @@ class ListingAdmin(SummernoteModelAdmin):
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     pass 
+
+@admin.register(Review)
+class ReviewAdmin(SummernoteModelAdmin):
+    summernote_fields = ("listing", "reviewer")
