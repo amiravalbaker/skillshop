@@ -1,9 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Profile, Listing, Skill, Review
+from .models import Profile, Listing, Skill, Review, Message
 
-
+# Create your forms here.
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(required=True)
 
@@ -89,4 +89,12 @@ class ReviewForm(forms.ModelForm):
         widgets = {
             "rating": forms.Select(choices=[(i, i) for i in range(1, 6)]),
             "comment": forms.Textarea(attrs={"rows": 3}),
+        }
+
+class MessageForm (forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ["body"]
+        widgets = {
+            "body": forms.Textarea(attrs={"rows": 3, "placeholder": "Type your message..."}),
         }

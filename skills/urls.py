@@ -9,4 +9,6 @@ urlpatterns = [
     path("search/", views.search, name="search"),
     path("listing/<int:listing_id>/edit/", views.edit_listing, name="edit_listing"),
     path("listing/<int:listing_id>/", views.listing_detail, name="listing_detail"),
+    path("listing/<int:listing_id>/message/", views.start_conversation, name="start_conversation"),
+    path("conversations/<int:conversation_id>/", views.conversation_detail, name="conversation_detail"),
 ]

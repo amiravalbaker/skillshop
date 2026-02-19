@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-3">
+  Conversation
+  {% if conversation.listing %}
+    <small class="text-muted">— {{ conversation.listing.skill.name }}</small>
+  {% endif %}
+</h2>
+
+{% if other %}
+  <p class="text-muted">Messaging: <strong>{{ other.display_name }}</strong></p>
+{% endif %}
+
+<div class="card shadow-sm mb-3">
+  <div class="card-body" style="max-height: 420px; overflow-y: auto;">
+    {% for m in messages %}
+      <div class="mb-2">
+        <strong>
+          {% if m.sender == user.profile %}You{% else %}{{ m.sender.display_name }}{% endif %}
+        </strong>
+        <small class="text-muted">{{ m.created_at|date:"d M H:i" }}</small>
+        <div>{{ m.body|linebreaksbr }}</div>
+      </div>
+      <hr class="my-2">
+    {% empty %}
+      <p class="text-muted mb-0">No messages yet. Say hello!</p>
+    {% endfor %}
+  </div>
+</div>
+
+<form method="post" class="card card-body shadow-sm">
+  {% csrf_token %}
+  <div class="mb-2">
+    {{ form.body }}
+  </div>
+  <button class="btn btn-primary" type="submit">Send</button>
+</form>
+
+<p class="mt-3">
+  <a href="{% url 'profile' %}">Back to profile</a>
+</p>
+{% endblock %}

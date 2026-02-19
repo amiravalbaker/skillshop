@@ -4,9 +4,9 @@
 <h2>My Profile</h2>
 
 {% if profile.profile_image %}
-  <img src="{{ profile.profile_image.url }}" alt="Profile image" style="max-width:140px; height:auto;">
+<img src="{{ profile.profile_image.url }}" alt="Profile image" style="max-width:140px; height:auto;">
 {% else %}
-  <p>(No profile photo uploaded)</p>
+<p>(No profile photo uploaded)</p>
 {% endif %}
 
 <p><strong>Name:</strong> {{ profile.display_name }}</p>
@@ -14,4 +14,38 @@
 <p><strong>Provider:</strong> {{ profile.is_provider }}</p>
 
 <a href="{% url 'edit_profile' %}">Edit Profile</a>
+
+<hr>
+<h4>Messages</h4>
+
+{% if inbox %}
+<div class="list-group">
+  {% for conv, other, last_msg in inbox %}
+  <a class="list-group-item list-group-item-action" href="{% url 'conversation_detail' conv.id %}">
+    <div class="d-flex justify-content-between">
+      <strong>
+        {% if other %}{{ other.display_name }}{% else %}Conversation{% endif %}
+      </strong>
+      <small class="text-muted">{{ conv.updated_at|date:"d M Y, H:i" }}</small>
+    </div>
+
+    <div class="text-muted">
+      {% if conv.listing %}
+      About: {{ conv.listing.skill.name }}
+      {% endif %}
+    </div>
+
+    {% if last_msg %}
+    <div>{{ last_msg.body|truncatechars:80 }}</div>
+    {% else %}
+    <div class="text-muted">(No messages yet)</div>
+    {% endif %}
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No conversations yet.</p>
+{% endif %}
+
+
 {% endblock %}

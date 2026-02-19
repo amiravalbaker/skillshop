@@ -39,6 +39,21 @@
 <p><strong>Price:</strong> £{{ listing.price }}</p>
 
 <hr>
+<!--Contact Provider -->
+{% if user.is_authenticated %}
+  {% if user.profile != listing.provider %}
+    <a class="btn btn-primary" href="{% url 'start_conversation' listing.id %}">
+      Message provider
+    </a>
+  {% else %}
+    <span class="text-muted">This is your listing.</span>
+  {% endif %}
+{% else %}
+  <a class="btn btn-primary" href="{% url 'account_login' %}?next={% url 'listing_detail' listing.id %}">
+    Log in to message provider
+  </a>
+{% endif %}
+
 
 <h4>Reviews</h4>
 

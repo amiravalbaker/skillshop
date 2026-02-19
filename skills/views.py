@@ -5,8 +5,8 @@ from django.db.models import Avg, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic 
-from .models import  Profile, Listing, Location, Skill, Review
-from .forms import ProfileForm, SignUpForm, ListingForm, ReviewForm 
+from .models import  Profile, Listing, Location, Skill, Review, Conversation, Message
+from .forms import ProfileForm, SignUpForm, ListingForm, ReviewForm, MessageForm
 
 # Create your views here.
 def index(request): return HttpResponse("Hello, World!")
@@ -29,8 +29,18 @@ def signup(request):
 @login_required
 def profile_view(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
+    conversations = Conversation.objects.filter(participants=profile).select_related("listing", "listing__skill").prefetch_related("participants", "messages").order_by("-updated_at")
+    
+ # Build a light “inbox” list with last message (avoids template query surprises)
+    inbox = []
+    for c in conversations:
+        other = c.other_participant(profile)
+        last_msg = c.messages.order_by("-created_at").first()
+        inbox.append((c, other, last_msg))
+      
     return render(request, "skills/profile.html", {
-        "profile": request.user.profile
+        "profile": profile,
+        "inbox": inbox,
     })
 
 @login_required
@@ -216,7 +226,7 @@ def listing_detail(request, listing_id):
 # Aggregate rating stats for this listing
     rating_stats = listing.reviews.aggregate(avg=Avg("rating"), count=Count("id"))
 
-    # Show all reviews
+# Show all reviews
     reviews = listing.reviews.select_related("reviewer", "reviewer__user")
 
     form = None
@@ -248,4 +258,60 @@ def listing_detail(request, listing_id):
         "rating_stats": rating_stats,
         "review_form": form,
         "user_review": user_review,                                                    
+    })
+
+@login_required
+def start_conversation(request, listing_id):
+    listing = get_object_or_404(Listing, id=listing_id, is_active=True)
+
+    me = request.user.profile
+    other = listing.provider
+
+    # Don't allow providers to start conversations on their own listings
+    if other == me:
+        raise PermissionDenied
+
+    # Check if a conversation already exists between this user and the provider about this listing
+    existing = listing.conversations.filter(participants=me).filter(participants=other).first()
+    if existing:
+        return redirect("conversation_detail", conversation_id=existing.id)
+
+    # Create new conversation
+    conv = listing.conversations.create()
+    conv.participants.add(me)
+    conv.participants.add(other)
+    conv.save()
+
+    return redirect("conversation_detail", conversation_id=conv.id)
+
+@login_required
+def conversation_detail(request, conversation_id):
+    conv  = get_object_or_404(
+        Conversation.objects.prefetch_related("participants", "messages__sender"),
+        id=conversation_id
+    )
+    me= request.user.profile
+
+    if me not in conv.participants.all():
+        raise PermissionDenied
+
+    messages_qs = conv.messages.select_related("sender", "sender__user").order_by("created_at")
+    if request.method == "POST":
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            msg = form.save(commit=False)
+            msg.conversation = conv
+            msg.sender = request.user.profile
+            msg.save()
+            return redirect("conversation_detail", conversation_id=conv.id)
+    else:
+        form = MessageForm()
+
+    other = conv.other_participant(me)
+
+    return render(request, "skills/conversation_detail.html", {
+        "conversation": conv,
+        "messages": messages_qs,  # oldest first
+        "form": form,
+        "other": other,
     })
