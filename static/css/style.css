@@ -1,0 +1,36 @@
+body {
+  padding-top: 70px; /* Adjust based on your navbar height */
+}
+
+.card { 
+    background-color: white;
+    border-color: #5b0694;
+}
+
+.card-text {
+    color: #5b0694;
+}
+
+.nav-link {
+    color: #5b0694;
+}
+
+.navbar-brand {
+    color: #5b0694;
+}
+
+.navbar-toggler-icon {
+    border-color: #5b0694;
+}
+
+.btn-dark {
+    background-color: #5b0694;
+    border-color: #5b0694;
+}
+
+
+.my-button:hover {
+    background-color: #112f65;
+    color: white;
+    border-color: #112f65;
+}

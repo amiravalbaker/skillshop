@@ -14,20 +14,20 @@
 
     <!-- CARD 1 -->
 
-    <div class="col-12 col-md-6">
+    <div class="col-12 col-md-5">
 
-      <div class="card p-4 shadow-sm">
-        <h4 class="mb-3">Do you need the services of a skilled person?</h4>
+      <div class="card p-4 h-100">
+        <h4 class="mb-3 card-text">Do you need the services of a skilled person?</h4>
         <a class="btn btn-dark" href="{% url 'search' %}">Search</a>
       </div>
 
     </div>
 
     <!-- CARD 2 -->
-    <div class="col-12 col-md-6">
+    <div class="col-12 col-md-5">
 
-      <div class="card p-4 shadow-sm">
-        <h4 class="mb-3">Do you have a skill you would like to offer?</h4>
+      <div class="card p-4 h-100">
+        <h4 class="mb-3 card-text">Do you have a skill you would like to offer?</h4>
         {% if user.is_authenticated %}
         {% if user.profile.is_provider %}
         <a class="btn btn-dark" href="{% url 'create_listing' %}">Create a listing</a>

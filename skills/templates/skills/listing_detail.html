@@ -2,113 +2,164 @@
 {% load static %}
 
 {% block content %}
+<div class="container py-5">
 
-<!--{# Listing photo (service-specific) #}
-{% if listing.photo %}
-  <img src="{{ listing.photo.url }}" alt="Listing photo" style="max-width:400px; height:auto;">
-{% elif listing.provider.profile_image %}
-  <img src="{{ listing.provider.profile_image.url }}" alt="Provider photo" style="max-width:200px; height:auto;">
-{% endif %}-->
+  <!-- Listing Card Header -->
+  <div class="card shadow-sm mb-4">
+    <div class="row g-0 align-items-center">
 
-{# Provider details #}
-<div style="display:flex; gap:16px; align-items:flex-start;">
-  {% if listing.provider.profile_image %}
-  <img src="{{ listing.provider.profile_image.url }}" alt="Provider photo" style="max-width:140px; height:auto;">
-  {% endif %}
+      <!-- Provider Image -->
+      <div class="col-12 col-md-4">
+        {% if listing.provider.profile_image %}
+          <img src="{{ listing.provider.profile_image.url }}"
+               class="img-fluid w-100 h-100 rounded-start"
+               alt="{{ listing.provider.display_name }}"
+               style="object-fit: cover;">
+        {% else %}
+          <img src="{% static 'images/default-profile.jpg' %}"
+               class="img-fluid w-100 h-100 rounded-start"
+               alt="Default profile"
+               style="object-fit: cover;">
+        {% endif %}
+      </div>
 
-  <div>
-    <h2>{{ listing.skill.name }}</h2>
+      <!-- Listing Info -->
+      <div class="col-12 col-md-8">
+        <div class="card-body">
+          <h3 class="card-title mb-2">{{ listing.skill.name }}</h3>
+          <p class="card-text mb-1"><strong>Provider:</strong> {{ listing.provider.display_name }}</p>
+          <p class="card-text mb-1">
+            <strong>Location:</strong>
+            {% if listing.location %}{{ listing.location.name }}{% else %}Not set{% endif %}
+          </p>
 
-    <p><strong>Provider:</strong> {{ listing.provider.display_name }}</p>
+          <p class="card-text mt-3"><strong>Price:</strong> £{{ listing.price }}</p>
 
-    <p><strong>Location:</strong>
-      {% if listing.location %}{{ listing.location.name }}{% else %}Not set{% endif %}
-    </p>
+          {% if listing.avg_rating %}
+            <div class="mt-2">
+              <span class="badge text-bg-warning text-dark">{{ listing.avg_rating|floatformat:1 }}/5</span>
+              <small class="text-muted">({{ listing.review_count }} review{{ listing.review_count|pluralize }})</small>
+            </div>
+          {% else %}
+            <small class="text-muted">No reviews yet</small>
+          {% endif %}
+        </div>
+      </div>
+    </div>
   </div>
 
-</div>
-
-<p><strong>Bio:</strong><br>
-  {{ listing.provider.bio|default:"(No bio provided)" }}
-</p>
-
-<p><strong>Description:</strong><br>
-  {{ listing.description }}
-</p>
-
-<p><strong>Price:</strong> £{{ listing.price }}</p>
-
-<hr>
-<!--Contact Provider -->
-{% if user.is_authenticated %}
-  {% if user.profile != listing.provider %}
-    <a class="btn btn-primary" href="{% url 'start_conversation' listing.id %}">
-      Message provider
-    </a>
-  {% else %}
-    <span class="text-muted">This is your listing.</span>
-  {% endif %}
-{% else %}
-  <a class="btn btn-primary" href="{% url 'account_login' %}?next={% url 'listing_detail' listing.id %}">
-    Log in to message provider
-  </a>
-{% endif %}
-
-
-<h4>Reviews</h4>
-
-<p>
-  <strong>Average rating:</strong>
-  {% if rating_stats.count %}
-  {{ rating_stats.avg|floatformat:1 }}/5 ({{ rating_stats.count }} review{{ rating_stats.count|pluralize }})
-  {% else %}
-  No reviews yet.
-  {% endif %}
-</p>
-
-{% if review_form %}
-<div class="card card-body shadow-sm mb-3">
-  <h5 class="mb-2">{% if user_review %}Edit your review{% else %}Leave a review{% endif %}</h5>
-  <form method="post">
-    {% csrf_token %}
-    <div class="mb-2">
-      {{ review_form.rating.label_tag }}
-      {{ review_form.rating }}
+  <!-- Listing Images Carousel -->
+  {% if listing.photos.all %}
+  <div id="listingCarousel" class="carousel slide mb-4 shadow-sm" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      {% for p in listing.photos.all %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+          <img src="{{ p.image.url }}" class="d-block w-100" alt="Listing photo {{ forloop.counter }}"
+               style="object-fit: cover; height: 400px;">
+        </div>
+      {% endfor %}
     </div>
-    <div class="mb-2">
-      {{ review_form.comment.label_tag }}
-      {{ review_form.comment }}
-    </div>
-    <button class="btn btn-primary" type="submit">
-      {% if user_review %}Update review{% else %}Submit review{% endif %}
+    <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
     </button>
-  </form>
-</div>
-{% elif user.is_authenticated and listing.provider == user.profile %}
-<p class="text-muted">You can’t review your own listing.</p>
-{% else %}
-<p><a href="{% url 'account_login' %}">Log in</a> to leave a review.</p>
-{% endif %}
-
-{% for r in reviews %}
-<div class="card mb-2">
-  <div class="card-body">
-    <div class="d-flex justify-content-between">
-      <strong>{{ r.reviewer.display_name }}</strong>
-      <span class="badge text-bg-secondary">{{ r.rating }}/5</span>
-    </div>
-    {% if r.comment %}
-    <p class="mb-1 mt-2">{{ r.comment }}</p>
-    {% endif %}
-    <small class="text-muted">{{ r.created_at }}</small>
+    <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
   </div>
-</div>
-{% empty %}
-<p>No reviews yet.</p>
-{% endfor %}
+  {% endif %}
 
-{% if user.is_authenticated and listing.provider == user.profile %}
-<p><a href="{% url 'edit_listing' listing.id %}">Edit this listing</a></p>
-{% endif %}
-<p><a href="{% url 'home' %}">Back to home</a></p>
+  <!-- Bio and Description -->
+  <div class="card card-body shadow-sm mb-4">
+    <h5>About the Provider</h5>
+    <p class="mb-3">{{ listing.provider.bio|default:"(No bio provided)" }}</p>
+
+    <h5>Description</h5>
+    <p>{{ listing.description|default:"(No description set)" }}</p>
+
+    <h5>Price</h5>
+    <p>£{{ listing.price }}</p>
+  </div>
+
+  <!-- Actions -->
+  <div class="d-flex flex-wrap gap-3 mb-4">
+    {% if user.is_authenticated %}
+      {% if user.profile != listing.provider %}
+        <a href="{% url 'start_conversation' listing.id %}" class="btn btn-primary">
+          Message Provider
+        </a>
+        <a href="#reviewForm" class="btn btn-outline-primary">
+          Leave a Review
+        </a>
+      {% else %}
+        <span class="text-muted">This is your listing.</span>
+      {% endif %}
+    {% else %}
+      <a href="{% url 'account_login' %}?next={% url 'listing_detail' listing.id %}" class="btn btn-primary">
+        Log in to message provider
+      </a>
+    {% endif %}
+  </div>
+
+  <!-- Reviews Section -->
+  <h4 class="mb-3">Reviews</h4>
+  <p>
+    <strong>Average rating:</strong>
+    {% if rating_stats.count %}
+      {{ rating_stats.avg|floatformat:1 }}/5 ({{ rating_stats.count }} review{{ rating_stats.count|pluralize }})
+    {% else %}
+      No reviews yet.
+    {% endif %}
+  </p>
+
+  <!-- Review Form -->
+  {% if review_form %}
+  <div id="reviewForm" class="card card-body shadow-sm mb-3">
+    <h5 class="mb-3">{% if user_review %}Edit Your Review{% else %}Leave a Review{% endif %}</h5>
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        {{ review_form.rating.label_tag }}  
+        {{ review_form.rating }}
+      </div>
+      <div class="mb-3">
+        {{ review_form.comment.label_tag }}
+        {{ review_form.comment }}
+      </div>
+      <button class="btn btn-primary" type="submit">
+        {% if user_review %}Update Review{% else %}Submit Review{% endif %}
+      </button>
+    </form>
+  </div>
+  {% elif user.is_authenticated and listing.provider == user.profile %}
+    <p class="text-muted">You can’t review your own listing.</p>
+  {% else %}
+    <p><a href="{% url 'account_login' %}">Log in</a> to leave a review.</p>
+  {% endif %}
+
+  <!-- List of Reviews -->
+  {% for r in reviews %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center">
+        <strong>{{ r.reviewer.display_name }}</strong>
+        <span class="badge text-bg-secondary">{{ r.rating }}/5</span>
+      </div>
+      {% if r.comment %}
+      <p class="mt-2 mb-1">{{ r.comment }}</p>
+      {% endif %}
+      <small class="text-muted">{{ r.created_at|date:"M j, Y" }}</small>
+    </div>
+  </div>
+  {% empty %}
+  <p>No reviews yet.</p>
+  {% endfor %}
+
+  {% if user.is_authenticated and listing.provider == user.profile %}
+    <p class="mt-3"><a href="{% url 'edit_listing' listing.id %}" class="btn btn-outline-secondary">Edit Listing</a></p>
+  {% endif %}
+
+  <p class="mt-3"><a href="{% url 'home' %}" class="text-decoration-none">&larr; Back to home</a></p>
+</div>
 {% endblock %}
