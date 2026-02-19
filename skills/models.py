@@ -47,13 +47,21 @@ class Listing(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     location = models.ForeignKey(Location, on_delete=models.PROTECT, null=True, blank=True)
-    photo = CloudinaryField("image", blank=True, null=True)
+    # Up to 3 photos for each listing
+    photo_1 = CloudinaryField("First image", blank=True, null=True)
+    photo_2 = CloudinaryField("Second image", blank=True, null=True)
+    photo_3 = CloudinaryField("Third image", blank=True, null=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.skill.name} ({self.provider.user.username})"
+
+    def get_photos(self):
+        """Returns a list of populated photo fields."""
+        photos = [self.photo_main, self.photo_2, self.photo_3]
+        return [p for p in photos if p]
 
 class Review(models.Model):
     listing = models.ForeignKey("Listing", on_delete=models.CASCADE, related_name="reviews")

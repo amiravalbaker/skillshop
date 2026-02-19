@@ -1,13 +1,33 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
 
 {% block content %}
 <div class="container py-5">
-<h2>Edit Profile</h2>
+    <h2>Edit Profile</h2>
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Save</button>
-</form>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div style="color:red;">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <p>
+        {{ form.profile_image.label_tag|crispy }}<br>
+        {{ form.profile_image|as_crispy_field }}
+        {% if form.profile_image.errors %}
+        <div style="color:red;">{{ form.profile_image.errors }}</div>
+        {% endif %}
+        </p>
+
+        <p>{{ form.first_name.label_tag|crispy }}<br>{{ form.first_name|as_crispy_field}}</p>
+        <p>{{ form.last_name.label_tag|crispy }}<br>{{ form.last_name|as_crispy_field }}</p>
+        <p>{{ form.bio.label_tag|crispy }}<br>{{ form.bio |as_crispy_field }}</p>
+        <p>{{ form.is_provider.label_tag|crispy }} {{ form.is_provider|as_crispy_field }}</p>
+
+        <button type="submit">Update</button>
+    </form>
 </div>
+
 {% endblock %}

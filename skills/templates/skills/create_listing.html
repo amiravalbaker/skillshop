@@ -4,50 +4,71 @@
 
 {% block content %}
 <div class="container py-5">
-<h2>Create a Listing</h2>
+    <h2>Create a Listing</h2>
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
 
-    {% if form.non_field_errors %}
-    <div style="color:red;">{{ form.non_field_errors }}</div>
-    {% endif %}
-
-    <p>
-        {{ form.skill_choice.label_tag|crispy }}<br>
-        {{ form.skill_choice|as_crispy_field }}
-        {% if form.skill_choice.errors %}
-          <div style="color:red;">{{ form.skill_choice.errors }}</div>
+        {% if form.non_field_errors %}
+        <div style="color:red;">{{ form.non_field_errors }}</div>
         {% endif %}
-    </p>
 
-    <div id="new-skill-box" style="display:none;">
         <p>
-            {{ form.new_skill.label_tag|crispy }}<br>
-            {{ form.new_skill |as_crispy_field }}
-            {% if form.new_skill.errors %}
-              <div style="color:red;">{{ form.new_skill.errors }}</div>
-            {% endif %}
-        </p>
-    </div>
-
-    <p>
-        {{ form.location_text.label_tag|crispy }}<br>
-        {{ form.location_text|as_crispy_field }}<br>
-        <small>{{ form.location_text.help_text }}</small>
-         {% if form.location_text.errors %}
-          <div style="color:red;">{{ form.location_text.errors }}</div>
+            {{ form.skill_choice.label_tag|crispy }}<br>
+            {{ form.skill_choice|as_crispy_field }}
+            {% if form.skill_choice.errors %}
+        <div style="color:red;">{{ form.skill_choice.errors }}</div>
         {% endif %}
-    </p>
+        </p>
 
-    <p>{{ form.description.label_tag|crispy }}<br>{{ form.description |as_crispy_field }}</p>
-    <p>{{ form.price.label_tag|crispy }}<br>{{ form.price|as_crispy_field}}</p>
-    <p>{{ form.is_active.label_tag|crispy }} {{ form.is_active|as_crispy_field }}</p>
+        <div id="new-skill-box" style="display:none;">
+            <p>
+                {{ form.new_skill.label_tag|crispy }}<br>
+                {{ form.new_skill |as_crispy_field }}
+                {% if form.new_skill.errors %}
+            <div style="color:red;">{{ form.new_skill.errors }}</div>
+            {% endif %}
+            </p>
+        </div>
 
-    <button type="submit">Create</button>
-</form>
-</div> 
+        <p>
+            {{ form.location_text.label_tag|crispy }}<br>
+            {{ form.location_text|as_crispy_field }}<br>
+            {% if form.location_text.errors %}
+        <div style="color:red;">{{ form.location_text.errors }}</div>
+        {% endif %}
+        </p>
 
+        <p>
+            {{ form.photo_1.label_tag|crispy }}<br>
+            {{ form.photo_1|as_crispy_field }}
+            {% if form.photo_1.errors %}
+        <div style="color:red;">{{ form.photo_1.errors }}</div>
+        {% endif %}
+
+
+        {{ form.photo_2.label_tag|crispy }}<br>
+        {{ form.photo_2|as_crispy_field }}
+        {% if form.photo_2.errors %}
+        <div style="color:red;">{{ form.photo_2.errors }}</div>
+        {% endif %}
+
+        {{ form.photo_3.label_tag|crispy }}<br>
+        {{ form.photo_3|as_crispy_field }}
+        {% if form.photo_3.errors %}
+        <div style="color:red;">{{ form.photo_3.errors }}</div>
+        {% endif %}
+        </p>
+
+
+
+        <p>{{ form.description.label_tag|crispy }}<br>{{ form.description |as_crispy_field }}</p>
+        <p>{{ form.price.label_tag|crispy }}<br>{{ form.price|as_crispy_field}}</p>
+        <p>{{ form.is_active.label_tag|crispy }} {{ form.is_active|as_crispy_field }}</p>
+
+        <button type="submit">Create</button>
+    </form>
+</div>
 <script src="{% static 'js/listing.js' %}"></script>
 
 {% endblock %}
