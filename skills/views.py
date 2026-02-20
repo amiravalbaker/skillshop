@@ -223,6 +223,7 @@ def listing_detail(request, listing_id):
         id=listing_id,
         is_active=True
     )
+
 # Aggregate rating stats for this listing
     rating_stats = listing.reviews.aggregate(avg=Avg("rating"), count=Count("id"))
 
@@ -252,8 +253,9 @@ def listing_detail(request, listing_id):
             else:
                 form = ReviewForm(instance=user_review)
 
-    return render(request, "skills/listing_detail.html", {
+    return render(request, "skills/listing_detail.html",{
         "listing": listing,
+        "photos": listing.get_photos(),
         "reviews": reviews,
         "rating_stats": rating_stats,
         "review_form": form,

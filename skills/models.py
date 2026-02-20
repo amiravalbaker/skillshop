@@ -60,7 +60,7 @@ class Listing(models.Model):
 
     def get_photos(self):
         """Returns a list of populated photo fields."""
-        photos = [self.photo_main, self.photo_2, self.photo_3]
+        photos = [self.photo_1, self.photo_2, self.photo_3]
         return [p for p in photos if p]
 
 class Review(models.Model):

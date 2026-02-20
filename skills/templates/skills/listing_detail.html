@@ -8,20 +8,50 @@
   <div class="card shadow-sm mb-4">
     <div class="row g-0 align-items-center">
 
-      <!-- Provider Image -->
-      <div class="col-12 col-md-4">
+      <!-- Combined Profile + Listing Photos Carousel -->
+<div class="col-12 col-md-3">
+  <div id="listingCarousel" class="carousel slide rounded-start h-100" data-bs-ride="carousel">
+
+    <div class="carousel-inner h-100" style="background-color: #f8f9fa;">
+
+      {# --- First slide: provider profile image --- #}
+      <div class="carousel-item active">
         {% if listing.provider.profile_image %}
           <img src="{{ listing.provider.profile_image.url }}"
-               class="img-fluid w-100 h-100 rounded-start"
+               class="d-block w-100 h-100"
                alt="{{ listing.provider.display_name }}"
-               style="object-fit: cover;">
+               style="object-fit: contain;">
         {% else %}
           <img src="{% static 'images/default-profile.jpg' %}"
-               class="img-fluid w-100 h-100 rounded-start"
+               class="d-block w-100 h-100"
                alt="Default profile"
-               style="object-fit: cover;">
+               style="object-fit: contain;">
         {% endif %}
       </div>
+
+      {# --- Subsequent slides: listing photos --- #}
+      {% for p in photos %}
+        <div class="carousel-item">
+          <img src="{{ p.url }}" class="d-block w-100 h-100"
+               alt="Listing photo {{ forloop.counter }}"
+               style="object-fit: contain;">
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if photos %}
+      <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    {% endif %}
+  </div>
+</div>
+
 
       <!-- Listing Info -->
       <div class="col-12 col-md-8">
@@ -47,28 +77,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Listing Images Carousel -->
-  {% if listing.photos.all %}
-  <div id="listingCarousel" class="carousel slide mb-4 shadow-sm" data-bs-ride="carousel">
-    <div class="carousel-inner">
-      {% for p in listing.photos.all %}
-        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-          <img src="{{ p.image.url }}" class="d-block w-100" alt="Listing photo {{ forloop.counter }}"
-               style="object-fit: cover; height: 400px;">
-        </div>
-      {% endfor %}
-    </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Next</span>
-    </button>
-  </div>
-  {% endif %}
 
   <!-- Bio and Description -->
   <div class="card card-body shadow-sm mb-4">
