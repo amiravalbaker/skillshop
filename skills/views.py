@@ -9,11 +9,10 @@ from .models import  Profile, Listing, Location, Skill, Review, Conversation, Me
 from .forms import ProfileForm, SignUpForm, ListingForm, ReviewForm, MessageForm
 
 # Create your views here.
-def index(request): return HttpResponse("Hello, World!")
 
 def home(request):
-    listings = Listing.objects.select_related("skill", "provider", "provider__user", "location").filter(is_active=True)
-    return render(request, "skills/home.html", {"listings": listings})
+    return render(request, "skills/home.html")
+   
 
 def signup(request):
     if request.method == "POST":
@@ -25,6 +24,7 @@ def signup(request):
         form = SignUpForm()
 
     return render(request, "skills/signup.html", {"form": form})
+
 
 @login_required
 def profile_view(request):
@@ -43,6 +43,7 @@ def profile_view(request):
         "inbox": inbox,
     })
 
+
 @login_required
 def edit_profile(request):
     profile = request.user.profile
@@ -58,6 +59,7 @@ def edit_profile(request):
     return render(request, "skills/edit_profile.html", {
         "form": form
     })
+
 
 @login_required
 def create_listing(request):
@@ -91,6 +93,7 @@ def create_listing(request):
         form = ListingForm()
 
     return render(request, "skills/create_listing.html", {"form": form})
+
 
 def search(request):
     listings = Listing.objects.select_related("skill", "provider", "provider__user", "location").filter(is_active=True).annotate(avg_rating=Avg("reviews__rating"), review_count=Count("reviews"))
@@ -226,40 +229,49 @@ def listing_detail(request, listing_id):
 
 # Aggregate rating stats for this listing
     rating_stats = listing.reviews.aggregate(avg=Avg("rating"), count=Count("id"))
-
-# Show all reviews
     reviews = listing.reviews.select_related("reviewer", "reviewer__user")
+    
+    avg_rating = rating_stats["avg"] or 0 
+    avg_rating_int = int(avg_rating)
 
-    form = None
+    review_form = None
     user_review = None
-
+    can_review = False
     if request.user.is_authenticated:
-        # ensure profile exists
         reviewer = request.user.profile
-        user_review = Review.objects.filter(listing=listing, reviewer=reviewer).first()
-
         # Don't allow provider to review their own listing
-        can_review = (listing.provider_id != reviewer.id)
+        if reviewer != listing.provider:
+            # ✅ allow review only if user has an existing conversation with provider
+            has_messaged = listing.conversations.filter(participants=reviewer,messages__isnull=False).exists()
+            if has_messaged:
+                can_review = True
 
         if can_review:
+            user_review = Review.objects.filter(
+                listing=listing,
+                reviewer=reviewer
+            ).first()
+
             if request.method == "POST":
-                form = ReviewForm(request.POST, instance=user_review)
-                if form.is_valid():
-                    obj = form.save(commit=False)
+                review_form = ReviewForm(request.POST, instance=user_review)
+                if review_form.is_valid():
+                    obj = review_form.save(commit=False)
                     obj.listing = listing
                     obj.reviewer = reviewer
                     obj.save()
                     return redirect("listing_detail", listing_id=listing.id)
             else:
-                form = ReviewForm(instance=user_review)
+                review_formform = ReviewForm(instance=user_review)
 
     return render(request, "skills/listing_detail.html",{
         "listing": listing,
         "photos": listing.get_photos(),
         "reviews": reviews,
         "rating_stats": rating_stats,
-        "review_form": form,
-        "user_review": user_review,                                                    
+        "avg_rating_int": avg_rating_int,
+        "review_form": review_form,
+        "user_review": user_review,   
+        "can_review": can_review,                                                
     })
 
 @login_required

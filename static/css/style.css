@@ -34,5 +34,31 @@ body {
     border-color: #112f65;
 }
 
+/* ---------- Interactive Star Rating ---------- */
+.star-rating {
+  direction: rtl;
+  display: inline-flex;
+  font-size: 1.8rem;
+}
+.star-rating input {
+  display: none;
+}
+.star-rating label {
+  color: #ccc;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: #f5b301;
+}
 
+/* ---------- Display Stars ---------- */
+.review-stars, .avg-rating-stars {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.text-warning { color: #f5b301 !important; }
+.text-muted { color: #ccc !important; }
 

@@ -64,14 +64,11 @@ class Listing(models.Model):
         return [p for p in photos if p]
 
 class Review(models.Model):
+    RATING_CHOICES = [(i, i) for i in range(1, 6)] # 1, 2, 3, 4, 5
+    rating = models.IntegerField(choices=RATING_CHOICES)
+    comment = models.TextField(blank=True)
     listing = models.ForeignKey("Listing", on_delete=models.CASCADE, related_name="reviews")
     reviewer = models.ForeignKey("Profile", on_delete=models.CASCADE, related_name="reviews_written")
-
-    rating = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)]
-    )
-    comment = models.TextField(blank=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -79,7 +76,7 @@ class Review(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.rating}/5 by {self.reviewer.user.username} on {self.listing_id}"
+        return f"{self.rating}★ by {self.reviewer.user.username} on {self.listing_id}"
 
 class Conversation(models.Model):
     """
