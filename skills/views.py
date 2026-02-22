@@ -96,9 +96,12 @@ def create_listing(request):
 
 
 def search(request):
+
     listings = Listing.objects.select_related("skill", "provider", "provider__user", "location").filter(is_active=True).annotate(avg_rating=Avg("reviews__rating"), review_count=Count("reviews"))
-    
-    skill_q = request.GET.get("skill", "").strip()
+    form = ListingForm(request.GET, search_mode=True)  # Pass search_mode=True to the form to adjust its behavior
+    #skill_q = request.GET.get("skill", "").strip()
+    skill_q = request.GET.get("skill_choice") or request.GET.get("skill")
+
     location_q = request.GET.get("location", "").strip()
 
     # miles (default 15)
@@ -109,55 +112,35 @@ def search(request):
     lon = request.GET.get("lon")
 
     if skill_q:
-        listings = listings.filter(skill__name__icontains=skill_q)
+        listings = listings.filter(skill_id=skill_q)
+    
+    try: r_miles = float(radius_miles) 
+    except ValueError: r_miles = 15.0
     
     # Determine user coords
     user_coords = None
     location_error = None
 
     # Determine whether the user attempted location filtering at all
-    attempted_location_filter = bool(location_q) or (lat and lon)
+    #attempted_location_filter = bool(location_q) or (lat and lon)
 
-    # Prefer browser coordinates if present
+    # Browser coordinates if present
     if lat and lon:
         try:
             user_coords = (float(lat), float(lon))
         except ValueError:
-            user_coords = None
-            location_error = "Could not read your browser location. Please type your postcode/town."
+            location_error = "Could not read your browser location."
     
-    
-     # Otherwise geocode typed location (avoid "Current location ..." text)
-    if user_coords is None and location_q:
-        if location_q.lower().startswith("current location"):
-            location_error = "Your browser location was unavailable. Please type your postcode/town."
+     # OFallback: geocode typed location
+    if not user_coords and location_q:
+        geolocator = Nominatim(user_agent="skillshop")
+        geo = geolocator.geocode(location_q)
+        if geo:
+            user_coords = (geo.latitude, geo.longitude)
         else:
-            geo = Nominatim(user_agent="skillshop").geocode(location_q)
-            if geo:
-                user_coords = (geo.latitude, geo.longitude)
-            else:
-                location_error = "Could not find that location. Try a full postcode or town/city name."
+            location_error = "Could not find that location. Try a full postcode or town/city name."
     
-     # Parse radius in miles
-    try:
-        r_miles = float(radius_miles) if radius_miles else 15.0
-    except ValueError:
-        r_miles = 15.0
-    
-    # If the user attempted location filtering but we couldn't get coords => show NO results
-    if attempted_location_filter and user_coords is None:
-
-    # Filter by distance (uses listing.location coords)
-        return render(request, "skills/search.html", {
-            "results": [],
-            "skill_q": skill_q,
-            "location_q": location_q,
-            "radius_miles": radius_miles,
-            "location_error": location_error or "Please enter a valid location.",
-        })
-
-    # Build results
-    results = []
+    results=[]
     if user_coords:
         for listing in listings:
             if not listing.location:
@@ -165,18 +148,23 @@ def search(request):
             listing_coords = (listing.location.latitude, listing.location.longitude)
             d_miles = geodesic(user_coords, listing_coords).miles
             if d_miles <= r_miles:
+                listing.avg_rating_int = int(listing.avg_rating or 0)
                 results.append((listing, d_miles))
         results.sort(key=lambda x: x[1])
     else:
-        # No location filter used => show all listings with no distance
-        results = [(l, None) for l in listings]
+        # No location filtering, just show all results with avg_rating_int annotated for star display
+        for listing in listings:
+            listing.avg_rating_int = int(listing.avg_rating or 0)
+            results.append((listing, None))  # No distance
 
+    # Filter by distance (uses listing.location coords)
     return render(request, "skills/search.html", {
         "results": results,
         "skill_q": skill_q,
         "location_q": location_q,
         "radius_miles": radius_miles,
         "location_error": location_error,
+        "form": form,
     })
 
 @login_required

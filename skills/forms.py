@@ -25,24 +25,42 @@ class ListingForm(forms.ModelForm):
         help_text="Enter a town/city or postcode"
     )
     skill_choice = forms.ChoiceField(label="Skill")
-    new_skill = forms.CharField(label="New skill name",required=False, max_length=100,)
+    new_skill = forms.CharField(label="New skill name",required=False, max_length=100)
     
     class Meta:
         model = Listing
         fields = ["description", "price", "is_active", "photo_1", "photo_2", "photo_3"]
 
     def __init__(self, *args, **kwargs):
+        # ⭐ Safely extract search_mode, default False 
+        search_mode = kwargs.pop("search_mode", False)
         super().__init__(*args, **kwargs)
 
         # Build dropdown choices from Skill table + add "Other/New skill..."
         skill_choices = [(str(s.id), s.name) for s in Skill.objects.order_by("name")]
         skill_choices.append((NEW_SKILL_VALUE, "Other / New skill…"))
+        
         self.fields["skill_choice"].choices = [("", "Select a skill…")] + skill_choices
 
+        # Make dropdown look like Bootstrap input 
+        self.fields["skill_choice"].widget.attrs.update({"class": "form-select"}) 
+        #self.fields["skill_choice"].label = ""
+        
         # If editing an existing listing, preselect its current skill
         if self.instance and getattr(self.instance, "pk", None):
             self.fields["skill_choice"].initial = str(self.instance.skill_id)
     
+       # ⭐ SEARCH MODE BEHAVIOUR 
+        if search_mode:
+        # Hide the new skill field 
+            self.fields["new_skill"].widget = forms.HiddenInput() 
+        # # Remove the "__new__" option 
+            filtered = [c for c in self.fields["skill_choice"].choices 
+                        if c[0] != NEW_SKILL_VALUE] 
+            self.fields["skill_choice"].choices = filtered
+            # ⭐ Allow empty selection (prevents "This field is required")
+            self.fields["skill_choice"].required = False
+
     def clean(self):
         cleaned = super().clean()
         chosen = cleaned.get("skill_choice")

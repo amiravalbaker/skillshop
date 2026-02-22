@@ -4,50 +4,73 @@
 {% block content %}
 <div class="container py-5">
 
-<!--Search form-->
-  <form method="get" class="card card-body shadow-sm mb-4">
-    <div class="row g-3">
+<form method="get" class="card card-body shadow-sm mb-4">
+  <div class="row g-3 align-items-end">
+    <!-- Skill dropdown -->
+      <div class="col-12 col-md-3"> 
+        <label class="form-label">Skill</label> 
+        <div class="mb-2"> 
+          <!--{{ form.skill_choice.label_tag }} -->
+          {{ form.skill_choice }} 
+          {% if form.skill_choice.errors %} 
+            <div class="text-danger small">{{ form.skill_choice.errors }}</div> 
+            {% endif %} 
+          </div>
 
-      <div class="col-12 col-md-4">
-        <label class="form-label">Skill</label>
-        <input class="form-control" type="text" name="skill" value="{{ skill_q }}">
+      <!-- New skill box (hidden in search mode) -->
+      <div id="new-skill-box" style="display:none;">
+        {{ form.new_skill.label_tag }}
+        {{ form.new_skill }}
+        {% if form.new_skill.errors %}
+          <div class="text-danger small">{{ form.new_skill.errors }}</div>
+        {% endif %}
       </div>
-
-      <div class="col-12 col-md-5">
-        <label class="form-label">Location (town/city or postcode)</label>
-
-        <div class="input-group">
-          <input class="form-control" type="text" name="location" id="location-input" value="{{ location_q }}">
-          <button class="btn btn-outline-secondary" type="button" id="use-location-btn">Use my location</button>
-          <button class="btn btn-outline-secondary" type="button" id="clear-location-btn">Clear</button>
-        </div>
-
-        <div id="geo-status" class="form-text text-muted mt-1">
-          Tip: “Use my location” may be approximate on some devices. If results look wrong, type your postcode.
-        </div>
-
-        <input type="hidden" name="lat" id="lat">
-        <input type="hidden" name="lon" id="lon">
-      </div>
-
-      <div class="col-12 col-md-3">
-        <label class="form-label">Radius (miles)</label>
-        <input class="form-control" type="number" name="radius" value="{{ radius_miles }}" min="1">
-      </div>
-
-      <div class="col-12">
-        <button class="btn btn-primary" type="submit">Search</button>
-        <a class="btn btn-outline-secondary ms-2" href="{% url 'search' %}">Clear</a>
-      </div>
-
     </div>
-  </form>
+
+    <!-- Location -->
+    <div class="col-12 col-md-3">
+      <label class="form-label">Location</label>
+      <input class="form-control" type="text" name="location" id="location-input"
+             value="{{ location_q }}" placeholder="Enter a postcode or town">
+
+      <div id="geo-status" class="form-text text-muted mt-1"></div>
+
+      <input type="hidden" name="lat" id="lat">
+      <input type="hidden" name="lon" id="lon">
+    </div>
+
+    <!-- Use my location -->
+    <div class="col-12 col-md-2 d-flex align-items-end">
+      <button class="btn btn-outline-secondary w-100" type="button" id="use-location-btn">
+        Use my location
+      </button>
+    </div>
+
+    <!-- Radius -->
+    <div class="col-12 col-md-2">
+      <label class="form-label">Radius (miles)</label>
+      <input class="form-control" type="number" name="radius"
+             value="{{ radius_miles }}" min="1">
+    </div>
+
+    <!-- Search + Clear -->
+    <div class="col-12 col-md-1 d-flex gap-2">
+      <button class="btn btn-primary flex-fill" type="submit">Search</button>
+      <a class="btn btn-outline-secondary flex-fill" href="{% url 'search' %}">Clear</a>
+    </div>
+
+  </div>
+</form>
+
+
+
 
   {% if location_error %}
   <div class="alert alert-warning mt-3">
     {{ location_error }}
   </div>
   {% endif %}
+
 
   <!--The search results-->
   <div class="row g-4">
@@ -68,7 +91,7 @@
               alt="Default image" style="object-fit: cover;">
             {% endif %}
           </div>
-            <!-- card body -->
+          <!-- card body -->
           <div class="col-8 d-flex flex-column">
 
             <div class="card-body d-flex flex-column justify-content-between">
@@ -91,10 +114,19 @@
 
               {% if listing.review_count %}
               <div class="mt-2">
-                <span class="badge text-bg-warning text-dark">
-                  {{ listing.avg_rating|floatformat:1 }}/5
-                </span>
-                <small class="text-muted">({{ listing.review_count }})</small>
+                <!-- Star display -->
+                {% for i in "12345" %}
+                {% if forloop.counter <= listing.avg_rating_int %} <spanclass="text-warning">★</span>
+                  {% else %} <span class="text-muted">★</span>
+                  {% endif %}
+                  {% endfor %}
+                  <!-- numeric rrating-->
+                  <span class="badge text-bg-warning text-dark">
+                    {{ listing.avg_rating|floatformat:1 }}/5
+                  </span>
+
+                  <!--Review count-->
+                  <small class="text-muted">({{ listing.review_count }})</small>
               </div>
               {% else %}
               <small class="text-muted">No reviews yet</small>
@@ -102,7 +134,6 @@
 
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -115,5 +146,6 @@
 
 </div>
 
-<script src="{% static 'js/geolocate.js' %}"></script>
+<script src="{% static 'js/listing.js' %}?v=2"></script>
+<script src="{% static 'js/geolocate2.js' %}"></script>
 {% endblock %}
