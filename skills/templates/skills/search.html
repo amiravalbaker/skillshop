@@ -2,10 +2,11 @@
 {% load static %}
 
 {% block content %}
-<div class="container py-5">
 
 <form method="get" class="card card-body shadow-sm mb-4">
+
   <div class="row g-3 align-items-end">
+
     <!-- Skill dropdown -->
       <div class="col-12 col-md-3"> 
         <label class="form-label">Skill</label> 
@@ -16,15 +17,6 @@
             <div class="text-danger small">{{ form.skill_choice.errors }}</div> 
             {% endif %} 
           </div>
-
-      <!-- New skill box (hidden in search mode) -->
-      <div id="new-skill-box" style="display:none;">
-        {{ form.new_skill.label_tag }}
-        {{ form.new_skill }}
-        {% if form.new_skill.errors %}
-          <div class="text-danger small">{{ form.new_skill.errors }}</div>
-        {% endif %}
-      </div>
     </div>
 
     <!-- Location -->
@@ -108,7 +100,7 @@
                 {% if listing.location %}{{ listing.location.name }}{% else %}Not set{% endif %}
               </p>
 
-              {% if dist %}
+              {% if dist is not None%}
               <span class="badge text-bg-secondary">{{ dist|floatformat:1 }} miles</span>
               {% endif %}
 
@@ -144,7 +136,6 @@
     {% endfor %}
   </div>
 
-</div>
 
 <script src="{% static 'js/listing.js' %}?v=2"></script>
 <script src="{% static 'js/geolocate.js' %}"></script>

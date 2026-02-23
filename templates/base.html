@@ -38,8 +38,8 @@
           <ul class="navbar-nav">
             {% if user.is_authenticated %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'profile' %}">My Profile</a>
-            </li>
+              <a class="nav-link" href="{% url 'profile' %}">{{ user.profile.display_name }}</a>
+            </li
             {% if user.profile.is_provider %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'create_listing' %}">Create Listing</a>
@@ -61,7 +61,7 @@
       </div>
     </nav>
 
-    <div class="container">
+    <div class="container py-5">
       {% block content %}{% endblock %}
     </div>
 

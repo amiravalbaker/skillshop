@@ -106,7 +106,7 @@ class ReviewForm(forms.ModelForm):
         fields = ["rating", "comment"]
         widgets = {
             "rating": forms.RadioSelect(choices=Review.RATING_CHOICES),
-            "comment": forms.Textarea(attrs={"rows": 3, "placeholder": "Write your review..."}),
+            "comment": forms.Textarea(attrs={"rows": 3, 'class': 'form-control'}),
         }
 
 class MessageForm (forms.ModelForm):

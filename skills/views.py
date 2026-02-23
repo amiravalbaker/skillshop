@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Avg, Count
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.urls import reverse
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic 
 from .models import  Profile, Listing, Location, Skill, Review, Conversation, Message
@@ -217,11 +219,12 @@ def listing_detail(request, listing_id):
 
 # Aggregate rating stats for this listing
     rating_stats = listing.reviews.aggregate(avg=Avg("rating"), count=Count("id"))
-    reviews = listing.reviews.select_related("reviewer", "reviewer__user")
+    reviews = listing.reviews.select_related("reviewer", "reviewer__user").order_by("-created_at")
     
     avg_rating = rating_stats["avg"] or 0 
     avg_rating_int = int(avg_rating)
 
+# Initialize Permission Variables
     review_form = None
     user_review = None
     can_review = False
@@ -229,27 +232,34 @@ def listing_detail(request, listing_id):
         reviewer = request.user.profile
         # Don't allow provider to review their own listing
         if reviewer != listing.provider:
-            # ✅ allow review only if user has an existing conversation with provider
-            has_messaged = listing.conversations.filter(participants=reviewer,messages__isnull=False).exists()
-            if has_messaged:
+            # Allow review only if user has an existing conversation with provider
+            has_replied = listing.conversations.filter(participants=reviewer).filter(messages__sender=listing.provider).exists()
+            if has_replied:
                 can_review = True
+                # Check if they have already left a review
+                user_review = Review.objects.filter(listing=listing, reviewer=reviewer).first()
 
+#Handle form processing
         if can_review:
-            user_review = Review.objects.filter(
-                listing=listing,
-                reviewer=reviewer
-            ).first()
+            #user_review = Review.objects.filter(
+             #   listing=listing,
+              #  reviewer=reviewer
+            #).first()
 
             if request.method == "POST":
+                # If user_review exists, this updates it; otherwise, it creates a new one
                 review_form = ReviewForm(request.POST, instance=user_review)
                 if review_form.is_valid():
                     obj = review_form.save(commit=False)
                     obj.listing = listing
                     obj.reviewer = reviewer
                     obj.save()
-                    return redirect("listing_detail", listing_id=listing.id)
+
+                    msg = "Your review has been updated." if user_review else "Your review has been submitted."
+                    messages.success(request, msg)
+                    return redirect(f"{reverse('listing_detail', args=[listing.id])}#review-section")
             else:
-                review_formform = ReviewForm(instance=user_review)
+                review_form = ReviewForm(instance=user_review)
 
     return render(request, "skills/listing_detail.html",{
         "listing": listing,
@@ -261,6 +271,16 @@ def listing_detail(request, listing_id):
         "user_review": user_review,   
         "can_review": can_review,                                                
     })
+
+@login_required
+def delete_review(request, review_id):
+    # We use reviewer=request.user.profile as a security check
+    review = get_object_or_404(Review, id=review_id, reviewer=request.user.profile)
+    listing_id = review.listing.id
+    review.delete()
+    messages.success(request, "Review deleted successfully.")
+    # Redirect back to the listing detail and scroll to the review header
+    return redirect(f"{reverse('listing_detail', args=[listing_id])}#review-section")
 
 @login_required
 def start_conversation(request, listing_id):
@@ -303,7 +323,7 @@ def conversation_detail(request, conversation_id):
         if form.is_valid():
             msg = form.save(commit=False)
             msg.conversation = conv
-            msg.sender = request.user.profile
+            msg.sender = me
             msg.save()
             return redirect("conversation_detail", conversation_id=conv.id)
     else:
@@ -311,9 +331,15 @@ def conversation_detail(request, conversation_id):
 
     other = conv.other_participant(me)
 
+    # Logic for the dynamic back link
+    user_is_provider = False
+    if conv.listing and conv.listing.provider == me:
+        user_is_provider = True
+
     return render(request, "skills/conversation_detail.html", {
         "conversation": conv,
         "messages": messages_qs,  # oldest first
         "form": form,
         "other": other,
+        "user_is_provider": user_is_provider, # Added this
     })
