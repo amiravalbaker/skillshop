@@ -1,51 +1,88 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
-<h2>My Profile</h2>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-9">
 
-{% if profile.profile_image %}
-<img src="{{ profile.profile_image.url }}" alt="Profile image" style="max-width:140px; height:auto;">
-{% else %}
-<p>(No profile photo uploaded)</p>
-{% endif %}
+            <div class="card shadow-sm mb-4">
+    <div class="row g-0 align-items-center">
+        <div class="col-12 col-md-3 bg-light d-flex align-items-center justify-content-center" style="min-height: 200px;">
+            {% if profile.profile_image %}
+                <img src="{{ profile.profile_image.url }}" class="img-fluid w-100 h-100" style="object-fit: cover;">
+            {% else %}
+                <img src="{% static 'images/default-profile.jpg' %}" class="img-fluid w-100 h-100" style="object-fit: cover;">
+            {% endif %}
+        </div>
 
-<p><strong>Name:</strong> {{ profile.display_name }}</p>
-<p><strong>Bio:</strong> {{ profile.bio|default:"(No bio yet)" }}</p>
-<p><strong>Provider:</strong> {{ profile.is_provider }}</p>
+        <div class="col-12 col-md-9">
+            <div class="card-body text-center">
+                
+                <h3 class="card-title mb-1 text-dark fw-bold">{{ profile.display_name }}</h3>
+                
+                <p class="mb-3 text-dark">
+                    <strong>Status:</strong> 
+                    {% if profile.is_provider %} Verified Provider {% else %} Member {% endif %}
+                </p>
 
-<a href="{% url 'edit_profile' %}">Edit Profile</a>
-
-<hr>
-<h4>Messages</h4>
-
-{% if inbox %}
-<div class="list-group">
-  {% for conv, other, last_msg in inbox %}
-  <a class="list-group-item list-group-item-action" href="{% url 'conversation_detail' conv.id %}">
-    <div class="d-flex justify-content-between">
-      <strong>
-        {% if other %}{{ other.display_name }}{% else %}Conversation{% endif %}
-      </strong>
-      <small class="text-muted">{{ conv.updated_at|date:"d M Y, H:i" }}</small>
+                <div>
+                    <a href="{% url 'edit_profile' %}" class="btn btn-sm btn-outline-primary px-4">
+                        Edit Profile
+                    </a>
+                </div>
+                
+            </div>
+        </div>
     </div>
-
-    <div class="text-muted">
-      {% if conv.listing %}
-      About: {{ conv.listing.skill.name }}
-      {% endif %}
-    </div>
-
-    {% if last_msg %}
-    <div>{{ last_msg.body|truncatechars:80 }}</div>
-    {% else %}
-    <div class="text-muted">(No messages yet)</div>
-    {% endif %}
-  </a>
-  {% endfor %}
 </div>
-{% else %}
-<p class="text-muted">No conversations yet.</p>
-{% endif %}
+            <div class="card shadow-sm mb-5">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 text-dark fw-bold">My Skill Listings</h5>
+                    <a href="{% url 'create_listing' %}" class="btn btn-sm btn-primary">+ Add New Listing</a>
+                </div>
+                
+                <div class="list-group list-group-flush">
+                    {% for listing in listings %}
+                        <a href="{% url 'listing_detail' listing.id %}" class="list-group-item list-group-item-action py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0 text-dark fw-bold">{{ listing.skill.name }}</h6>
+                                    <small class="text-muted">Price: £{{ listing.price }} | Location: {{ listing.location.name|default:"Not set" }}</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">
+                                    {{ listing.is_active|yesno:"Active,Inactive" }}
+                                </span>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
 
+            
+            {% if inbox %}
+            <h4 class="mb-3 text-dark fw-bold">Recent Messages</h4>
+                <div class="list-group shadow-sm mb-4">
+                    {% for conv, other, last_msg in inbox %}
+                        <a class="list-group-item list-group-item-action py-3" href="{% url 'conversation_detail' conv.id %}">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="text-dark">{% if other %}{{ other.display_name }}{% else %}Conversation{% endif %}</strong>
+                                <small class="text-muted">{{ conv.updated_at|date:"d M, H:i" }}</small>
+                            </div>
 
+                            <div class="small mb-1 text-dark">
+                                {% if conv.listing %}<strong>About:</strong> {{ conv.listing.skill.name }}{% endif %}
+                            </div>
+
+                            <div class="text-muted small">
+                                {{ last_msg.text|default:"(No messages yet)"|truncatechars:100 }}
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
 {% endblock %}

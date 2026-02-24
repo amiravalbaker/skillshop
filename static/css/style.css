@@ -1,64 +1,91 @@
+/* style.css */
+
 body {
-  padding-top: 70px; /* Adjust based on your navbar height */
+  padding-top: 70px;
 }
 
-.card { 
-    background-color: white;
+/* Force Purple on all Primary and Success buttons */
+body .btn-primary, 
+body .btn-success, 
+body .bg-primary, 
+body .btn-dark,   
+body .btn-info,
+body .badge.bg-success,
+body .badge.bg-primary { 
+    background-color: #5b0694 !important;
+    border-color: #5b0694 !important;
+    color: #ffffff !important;
+}
+
+/* Fix Hover for all of them */
+body .btn-primary:hover, 
+body .btn-success:hover, 
+body .btn-dark:hover, 
+body .btn-info:hover {
+    background-color: #450472 !important;
+    border-color: #450472 !important;
+}
+
+/* Outline buttons */
+body .btn-outline-primary {
+    color: #5b0694 !important;
+    border-color: #5b0694 !important;
+}
+
+body .btn-outline-primary:hover {
+    background-color: #5b0694 !important;
+    color: #ffffff !important;
+}
+
+/* Ensure the cards use the purple border */
+body .card { 
+    border-color: #5b0694 !important;
+}
+
+/* Navigation brand/links */
+body .navbar-brand, 
+body .nav-link {
+    color: #5b0694 !important;
+}
+
+/* Styling Allauth's default 'as_p' output */
+.custom-form p {
+    margin-bottom: 1rem;
+}
+
+.custom-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.custom-form input[type="text"],
+.custom-form input[type="email"],
+.custom-form input[type="password"],
+.custom-form input[type="number"],
+.custom-form select,
+.custom-form textarea {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px; /* Square styling to match your listings */
+    transition: border-color 0.15s ease-in-out;
+}
+
+.custom-form input:focus {
+    outline: none;
     border-color: #5b0694;
+    box-shadow: 0 0 0 0.2rem rgba(91, 6, 148, 0.25);
 }
 
-.card-text {
-    color: #5b0694;
+/* Fixes for allauth error lists */
+.errorlist {
+    color: #dc3545;
+    list-style: none;
+    padding: 0;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
 }
-
-.nav-link {
-    color: #5b0694;
-}
-
-.navbar-brand {
-    color: #5b0694;
-}
-
-.navbar-toggler-icon {
-    border-color: #5b0694;
-}
-
-.btn-dark {
-    background-color: #5b0694;
-    border-color: #5b0694;
-}
-
-.my-button:hover {
-    background-color: #112f65;
-    color: white;
-    border-color: #112f65;
-}
-
-/* ---------- Interactive Star Rating ---------- */
-.star-rating {
-  direction: rtl;
-  display: inline-flex;
-  font-size: 1.8rem;
-}
-.star-rating input {
-  display: none;
-}
-.star-rating label {
-  color: #ccc;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.star-rating input:checked ~ label,
-.star-rating label:hover,
-.star-rating label:hover ~ label {
-  color: #f5b301;
-}
-
-/* ---------- Display Stars ---------- */
-.review-stars, .avg-rating-stars {
-  font-size: 1.4rem;
-  line-height: 1;
-}
-.text-warning { color: #f5b301 !important; }
-.text-muted { color: #ccc !important; }
-

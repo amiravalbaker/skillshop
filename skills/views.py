@@ -31,6 +31,8 @@ def signup(request):
 @login_required
 def profile_view(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
+    # Fetch listings using the related_name you defined
+    my_listings = profile.listings.all().select_related("skill", "location")
     conversations = Conversation.objects.filter(participants=profile).select_related("listing", "listing__skill").prefetch_related("participants", "messages").order_by("-updated_at")
     
  # Build a light “inbox” list with last message (avoids template query surprises)
@@ -43,6 +45,7 @@ def profile_view(request):
     return render(request, "skills/profile.html", {
         "profile": profile,
         "inbox": inbox,
+        "listings": my_listings,
     })
 
 
