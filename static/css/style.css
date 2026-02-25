@@ -1,7 +1,34 @@
 /* style.css */
 
-body {
+/*body {
     padding-top: 70px;
+}*/
+
+/* Ensure the body allows for scrolling even with full-height elements */
+/* Sticky Footer Logic */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Push the footer to the bottom */
+main {
+    flex: 1 0 auto;
+}
+
+/* Ensure the footer stays its own size */
+footer {
+    flex-shrink: 0;
+    width: 100%;
+}
+
+/* Spacing fix so content isn't hidden under fixed navbar */
+body {
+    padding-top: 0 !important; /* We handle this with margin-top on main instead */
 }
 
 /* Force Purple on all Primary and Success buttons */
