@@ -3,129 +3,133 @@
 
 {% block content %}
 <div class="container py-5">
-  <div class="card shadow-sm mb-4">
-    <div class="row g-0 align-items-center">
-      <div class="col-12 col-md-3">
-        <div id="listingCarousel" class="carousel slide rounded-start h-100" data-bs-ride="carousel">
-          <div class="carousel-inner h-100" style="background-color: #f8f9fa;">
-            <div class="carousel-item active">
-              {% if listing.provider.profile_image %}
-              <img src="{{ listing.provider.profile_image.url }}" class="d-block w-100 h-100"
-                alt="{{ listing.provider.display_name }}" style="object-fit: contain;">
-              {% else %}
-              <img src="{% static 'images/default-profile.jpg' %}" class="d-block w-100 h-100" alt="Default profile"
-                style="object-fit: contain;">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-9">
+
+      <div class="card shadow-sm mb-4">
+        <div class="row g-0 align-items-center">
+          <div class="col-12 col-md-3">
+            <div id="listingCarousel" class="carousel slide rounded-start h-100" data-bs-ride="carousel">
+              <div class="carousel-inner h-100" style="background-color: #f8f9fa;">
+                <div class="carousel-item active">
+                  {% if listing.provider.profile_image %}
+                    <img src="{{ listing.provider.profile_image.url }}" class="d-block w-100 h-100"
+                      alt="{{ listing.provider.display_name }}" style="object-fit: contain;">
+                  {% else %}
+                    <img src="{% static 'images/default-profile.jpg' %}" class="d-block w-100 h-100" alt="Default profile"
+                      style="object-fit: contain;">
+                  {% endif %}
+                </div>
+                {% for p in photos %}
+                  <div class="carousel-item">
+                    <img src="{{ p.url }}" class="d-block w-100 h-100" alt="Listing photo {{ forloop.counter }}"
+                      style="object-fit: contain;">
+                  </div>
+                {% endfor %}
+              </div>
+
+              {% if photos %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Next</span>
+                </button>
               {% endif %}
             </div>
-            {% for p in photos %}
-            <div class="carousel-item">
-              <img src="{{ p.url }}" class="d-block w-100 h-100" alt="Listing photo {{ forloop.counter }}"
-                style="object-fit: contain;">
+          </div>
+
+          <div class="col-12 col-md-8">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <h3 class="card-title mb-2">{{ listing.skill.name }}</h3>
+                {% if user.is_authenticated and user.profile == listing.provider %}
+                  <a href="{% url 'edit_listing' listing.id %}" class="btn btn-sm btn-outline-primary px-3"
+                    style="color: #5b0694; border-color: #5b0694;">
+                    Edit Listing
+                  </a>
+                {% endif %}
+              </div>
+
+              <p class="card-text mb-1"><strong>Provider:</strong> {{ listing.provider.display_name }}</p>
+              <p class="card-text mb-1">
+                <strong>Location:</strong> {% if listing.location %}{{ listing.location.name }}{% else %}Not set{% endif %}
+              </p>
+              <p class="card-text mt-3"><strong>Price (hourly rate):</strong> £{{ listing.price }}</p>
+
+              {% if rating_stats.count %}
+                <div class="mt-2">
+                  <span class="badge text-bg-warning text-dark">{{ rating_stats.avg |floatformat:1 }}/5</span>
+                  <small class="text-muted">({{ rating_stats.count }} review{{ rating_stats.count|pluralize }})</small>
+                </div>
+              {% else %}
+                <small class="text-muted">No reviews yet</small>
+              {% endif %}
             </div>
-            {% endfor %}
           </div>
-          {% if photos %}
-          <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
-          {% endif %}
         </div>
       </div>
 
-      <div class="col-12 col-md-8">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start">
-            <h3 class="card-title mb-2">{{ listing.skill.name }}</h3>
-            {% if user.is_authenticated and user.profile == listing.provider %}
-            <a href="{% url 'edit_listing' listing.id %}" class="btn btn-sm btn-outline-primary px-3"
-              style="color: #5b0694; border-color: #5b0694;">
-              Edit Listing
-            </a>
-            {% endif %}
-          </div>
+      <div class="card card-body shadow-sm mb-4">
+        <h5>About the Provider</h5>
+        <p class="mb-3">{{ listing.provider.bio|default:"(No bio provided)" }}</p>
+        <h5>Description</h5>
+        <p>{{ listing.description|default:"(No description set)" }}</p>
+      </div>
 
-          <p class="card-text mb-1"><strong>Provider:</strong> {{ listing.provider.display_name }}</p>
-          <p class="card-text mb-1">
-            <strong>Location:</strong> {% if listing.location %}{{ listing.location.name }}{% else %}Not set{% endif %}
-          </p>
-
-          <p class="card-text mt-3"><strong>Price (hourly rate):</strong> £{{ listing.price }}</p>
-
-          {% if rating_stats.count %}
-          <div class="mt-2">
-            <span class="badge text-bg-warning text-dark">{{ rating_stats.avg |floatformat:1 }}/5</span>
-            <small class="text-muted">({{ rating_stats.count }} review{{ rating_stats.count|pluralize }})</small>
-          </div>
+      <div class="d-flex flex-wrap gap-3 mb-4">
+        {% if user.is_authenticated %}
+          {% if user.profile != listing.provider %}
+            <a href="{% url 'start_conversation' listing.id %}" class="btn btn-primary">Message Provider</a>
           {% else %}
-          <small class="text-muted">No reviews yet</small>
+            <span class="text-muted">This is your listing.</span>
           {% endif %}
+        {% else %}
+          <a href="{% url 'account_login' %}?next={% url 'listing_detail' listing.id %}" class="btn btn-primary">
+            Log in to message provider                                                  
+          </a>
+        {% endif %}
+      </div>
+
+      <h4 class="mb-3" id="review-section">Reviews</h4>
+        <p class="mb-2">
+          <strong>Average rating:</strong>
+          {% if rating_stats.count %}
+            {% for i in "12345" %}
+              <span class="{% if forloop.counter <= avg_rating_int %}text-warning{% else %}text-muted{% endif %}">★</span>
+            {% endfor %}
+              <span class="text-muted">({{ rating_stats.avg|floatformat:1 }}/5 from {{ rating_stats.count }} review{{
+            rating_stats.count|pluralize }})</span>
+          {% else %}
+            <span class="text-muted">No reviews yet.</span>
+          {% endif %}
+        </p>
+
+      <div id="review-feedback-area" class="mb-4">
+        {% if not user.is_authenticated %}
+        <div class="alert alert-info">
+          <a href="{% url 'account_login' %}?next={% url 'listing_detail' listing.id %}#review-section"
+          class="alert-link">Log in</a> to leave a review.
         </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-  <div class="card card-body shadow-sm mb-4">
-    <h5>About the Provider</h5>
-    <p class="mb-3">{{ listing.provider.bio|default:"(No bio provided)" }}</p>
-    <h5>Description</h5>
-    <p>{{ listing.description|default:"(No description set)" }}</p>
-  </div>
+        {% elif user.profile == listing.provider %}
+        <div class="alert alert-light border shadow-sm">
+          <p class="mb-0 text-muted italic">You cannot review your own listing.</p>
+        </div>
 
-  <div class="d-flex flex-wrap gap-3 mb-4">
-    {% if user.is_authenticated %}
-    {% if user.profile != listing.provider %}
-    <a href="{% url 'start_conversation' listing.id %}" class="btn btn-primary">Message Provider</a>
-    {% else %}
-    <span class="text-muted">This is your listing.</span>
-    {% endif %}
-    {% else %}
-    <a href="{% url 'account_login' %}?next={% url 'listing_detail' listing.id %}" class="btn btn-primary">Log in to
-      message provider</a>
-    {% endif %}
-  </div>
-
-  <h4 class="mb-3" id="review-section">Reviews</h4>
-
-  <p class="mb-2">
-    <strong>Average rating:</strong>
-    {% if rating_stats.count %}
-    {% for i in "12345" %}
-    <span class="{% if forloop.counter <= avg_rating_int %}text-warning{% else %}text-muted{% endif %}">★</span>
-    {% endfor %}
-    <span class="text-muted">({{ rating_stats.avg|floatformat:1 }}/5 from {{ rating_stats.count }} review{{
-      rating_stats.count|pluralize }})</span>
-    {% else %}
-    <span class="text-muted">No reviews yet.</span>
-    {% endif %}
-  </p>
-
-  <div id="review-feedback-area" class="mb-4">
-    {% if not user.is_authenticated %}
-    <div class="alert alert-info">
-      <a href="{% url 'account_login' %}?next={% url 'listing_detail' listing.id %}#review-section"
-        class="alert-link">Log in</a> to leave a review.
-    </div>
-
-    {% elif user.profile == listing.provider %}
-    <div class="alert alert-light border shadow-sm">
-      <p class="mb-0 text-muted italic">You cannot review your own listing.</p>
-    </div>
-
-    {% elif user_review %}
-    <div class="alert alert-success d-flex justify-content-between align-items-center">
-      <span>You have already reviewed this listing.</span>
-      <div class="d-flex gap-2">
-        <button class="btn btn-sm btn-outline-success" type="button" data-bs-toggle="collapse"
-          data-bs-target="#editReviewForm">Edit Your Review</button>
-        <a href="{% url 'delete_review' user_review.id %}" class="btn btn-sm btn-outline-danger"
-          onclick="return confirm('Are you sure you want to delete this review?')">Delete</a>
-      </div>
+        {% elif user_review %}
+          <div class="alert alert-success d-flex justify-content-between align-items-center">
+            <span>You have already reviewed this listing.</span>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-success" type="button" data-bs-toggle="collapse"
+                data-bs-target="#editReviewForm">Edit Your Review
+              </button>
+                <a href="{% url 'delete_review' user_review.id %}" class="btn btn-sm btn-outline-danger"
+                    onclick="return confirm('Are you sure you want to delete this review?')">Delete
+                </a>
+              </div>
     </div>
 
     <div class="collapse mt-3" id="editReviewForm">
@@ -214,5 +218,8 @@
     </a>
     {% endif %}
   </p>
+</div>
+</div>
+</div>
 </div>
 {% endblock %}

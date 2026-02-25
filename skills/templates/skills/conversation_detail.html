@@ -43,12 +43,12 @@
     <a href="{% url 'profile' %}" class="text-decoration-none">&larr; Back to My Profile</a>
   {% elif conversation.listing %}
     {# Client goes back to the specific listing #}
-    <a href="{% url 'listing_detail' conversation.listing.id %}" class="text-decoration-none">
+    <a href="{% url 'listing_detail' conversation.listing.id %}" class="text-decoration-none" style="color: #5b0694;">
       &larr; Back to {{ conversation.listing.provider.display_name }}
     </a>
   {% else %}
     {# Fallback #}
-    <a href="{% url 'profile' %}" class="text-decoration-none">&larr; Back to Profile</a>
+    <a href="{% url 'profile' %}" class="text-decoration-none" style="color: #5b0694;">&larr; Back to Profile</a>
   {% endif %}
 </p>
 {% endblock %}
