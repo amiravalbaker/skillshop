@@ -189,7 +189,9 @@ def edit_listing(request, listing_id):
         form = ListingForm(request.POST, request.FILES, instance=listing)
         if form.is_valid():
             updated = form.save(commit=False)
-
+            messages.success(request, f'Your listing "{listing.skill.name}" has been updated!')
+            return redirect('profile') 
+        
             # Geocode and set location (same as create)
             location_text = form.cleaned_data.get("location_text", "").strip()
             geo = Nominatim(user_agent="skillshop").geocode(location_text)
@@ -346,3 +348,15 @@ def conversation_detail(request, conversation_id):
         "other": other,
         "user_is_provider": user_is_provider, # Added this
     })
+#delete listing view - provider only
+@login_required
+def delete_listing(request, listing_id):
+    listing = get_object_or_404(Listing, id=listing_id, user=request.user)
+    
+    if request.method == 'POST':
+        listing.delete()
+        # You can add a 'success' message here later
+        return redirect('profile')
+    
+    # If someone tries to access via a link (GET), send them back
+    return redirect('profile')

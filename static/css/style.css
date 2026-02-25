@@ -1,26 +1,26 @@
 /* style.css */
 
 body {
-  padding-top: 70px;
+    padding-top: 70px;
 }
 
 /* Force Purple on all Primary and Success buttons */
-body .btn-primary, 
-body .btn-success, 
-body .bg-primary, 
-body .btn-dark,   
+body .btn-primary,
+body .btn-success,
+body .bg-primary,
+body .btn-dark,
 body .btn-info,
 body .badge.bg-success,
-body .badge.bg-primary { 
+body .badge.bg-primary {
     background-color: #5b0694 !important;
     border-color: #5b0694 !important;
     color: #ffffff !important;
 }
 
 /* Fix Hover for all of them */
-body .btn-primary:hover, 
-body .btn-success:hover, 
-body .btn-dark:hover, 
+body .btn-primary:hover,
+body .btn-success:hover,
+body .btn-dark:hover,
 body .btn-info:hover {
     background-color: #450472 !important;
     border-color: #450472 !important;
@@ -38,12 +38,12 @@ body .btn-outline-primary:hover {
 }
 
 /* Ensure the cards use the purple border */
-body .card { 
+body .card {
     border-color: #5b0694 !important;
 }
 
 /* Navigation brand/links */
-body .navbar-brand, 
+body .navbar-brand,
 body .nav-link {
     color: #5b0694 !important;
 }
@@ -71,7 +71,8 @@ body .nav-link {
     padding: 0.5rem 0.75rem;
     font-size: 1rem;
     border: 1px solid #ced4da;
-    border-radius: 4px; /* Square styling to match your listings */
+    border-radius: 4px;
+    /* Square styling to match your listings */
     transition: border-color 0.15s ease-in-out;
 }
 
@@ -88,4 +89,30 @@ body .nav-link {
     padding: 0;
     font-size: 0.85rem;
     margin-bottom: 1rem;
+}
+
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+/* Hide the actual radio button circles */
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating label {
+    font-size: 1.5rem;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+/* Color stars when checked or hovered */
+.star-rating input:checked~label,
+.star-rating label:hover,
+.star-rating label:hover~label {
+    color: #ffc107;
 }
