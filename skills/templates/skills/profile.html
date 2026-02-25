@@ -74,9 +74,7 @@
                                 {% if conv.listing %}<strong>About:</strong> {{ conv.listing.skill.name }}{% endif %}
                             </div>
 
-                            <div class="text-muted small">
-                                {{ last_msg.text|default:"(No messages yet)"|truncatechars:100 }}
-                            </div>
+                            
                         </a>
                     {% endfor %}
                 </div>

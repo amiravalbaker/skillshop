@@ -57,6 +57,7 @@ def edit_profile(request):
         form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
+            messages.success(request, "Your profile has been updated successfully!")
             return redirect("profile")
     else:
         form = ProfileForm(instance=profile)
@@ -93,6 +94,7 @@ def create_listing(request):
                 listing.location = loc_obj
                 listing.provider = profile
                 listing.save()
+                messages.success(request, f"Success! Your listing '{listing.skill.name}' has been published.")
                 return redirect("home")
     else:
         form = ListingForm()
@@ -246,10 +248,6 @@ def listing_detail(request, listing_id):
 
 #Handle form processing
         if can_review:
-            #user_review = Review.objects.filter(
-             #   listing=listing,
-              #  reviewer=reviewer
-            #).first()
 
             if request.method == "POST":
                 # If user_review exists, this updates it; otherwise, it creates a new one
@@ -360,3 +358,11 @@ def delete_listing(request, listing_id):
     
     # If someone tries to access via a link (GET), send them back
     return redirect('profile')
+
+@login_required
+def delete_profile(request):
+    user = request.user
+    # Optional: Perform any specific cleanup here
+    user.delete()
+    messages.success(request, "Your account and all associated data have been deleted.")
+    return redirect('home')

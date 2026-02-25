@@ -11,14 +11,17 @@
           <div class="carousel-inner h-100" style="background-color: #f8f9fa;">
             <div class="carousel-item active">
               {% if listing.provider.profile_image %}
-              <img src="{{ listing.provider.profile_image.url }}" class="d-block w-100 h-100" alt="{{ listing.provider.display_name }}" style="object-fit: contain;">
+              <img src="{{ listing.provider.profile_image.url }}" class="d-block w-100 h-100"
+                alt="{{ listing.provider.display_name }}" style="object-fit: contain;">
               {% else %}
-              <img src="{% static 'images/default-profile.jpg' %}" class="d-block w-100 h-100" alt="Default profile" style="object-fit: contain;">
+              <img src="{% static 'images/default-profile.jpg' %}" class="d-block w-100 h-100" alt="Default profile"
+                style="object-fit: contain;">
               {% endif %}
             </div>
             {% for p in photos %}
             <div class="carousel-item">
-              <img src="{{ p.url }}" class="d-block w-100 h-100" alt="Listing photo {{ forloop.counter }}" style="object-fit: contain;">
+              <img src="{{ p.url }}" class="d-block w-100 h-100" alt="Listing photo {{ forloop.counter }}"
+                style="object-fit: contain;">
             </div>
             {% endfor %}
           </div>
@@ -37,11 +40,21 @@
 
       <div class="col-12 col-md-8">
         <div class="card-body">
-          <h3 class="card-title mb-2">{{ listing.skill.name }}</h3>
+          <div class="d-flex justify-content-between align-items-start">
+            <h3 class="card-title mb-2">{{ listing.skill.name }}</h3>
+            {% if user.is_authenticated and user.profile == listing.provider %}
+            <a href="{% url 'edit_listing' listing.id %}" class="btn btn-sm btn-outline-primary px-3"
+              style="color: #5b0694; border-color: #5b0694;">
+              Edit Listing
+            </a>
+            {% endif %}
+          </div>
+
           <p class="card-text mb-1"><strong>Provider:</strong> {{ listing.provider.display_name }}</p>
           <p class="card-text mb-1">
             <strong>Location:</strong> {% if listing.location %}{{ listing.location.name }}{% else %}Not set{% endif %}
           </p>
+
           <p class="card-text mt-3"><strong>Price (hourly rate):</strong> £{{ listing.price }}</p>
 
           {% if rating_stats.count %}
@@ -56,6 +69,7 @@
       </div>
     </div>
   </div>
+</div>
 
   <div class="card card-body shadow-sm mb-4">
     <h5>About the Provider</h5>
@@ -66,13 +80,14 @@
 
   <div class="d-flex flex-wrap gap-3 mb-4">
     {% if user.is_authenticated %}
-      {% if user.profile != listing.provider %}
-      <a href="{% url 'start_conversation' listing.id %}" class="btn btn-primary">Message Provider</a>
-      {% else %}
-      <span class="text-muted">This is your listing.</span>
-      {% endif %}
+    {% if user.profile != listing.provider %}
+    <a href="{% url 'start_conversation' listing.id %}" class="btn btn-primary">Message Provider</a>
     {% else %}
-    <a href="{% url 'account_login' %}?next={% url 'listing_detail' listing.id %}" class="btn btn-primary">Log in to message provider</a>
+    <span class="text-muted">This is your listing.</span>
+    {% endif %}
+    {% else %}
+    <a href="{% url 'account_login' %}?next={% url 'listing_detail' listing.id %}" class="btn btn-primary">Log in to
+      message provider</a>
     {% endif %}
   </div>
 
@@ -81,19 +96,21 @@
   <p class="mb-2">
     <strong>Average rating:</strong>
     {% if rating_stats.count %}
-      {% for i in "12345" %}
-        <span class="{% if forloop.counter <= avg_rating_int %}text-warning{% else %}text-muted{% endif %}">★</span>
-      {% endfor %}
-      <span class="text-muted">({{ rating_stats.avg|floatformat:1 }}/5 from {{ rating_stats.count }} review{{ rating_stats.count|pluralize }})</span>
+    {% for i in "12345" %}
+    <span class="{% if forloop.counter <= avg_rating_int %}text-warning{% else %}text-muted{% endif %}">★</span>
+    {% endfor %}
+    <span class="text-muted">({{ rating_stats.avg|floatformat:1 }}/5 from {{ rating_stats.count }} review{{
+      rating_stats.count|pluralize }})</span>
     {% else %}
-      <span class="text-muted">No reviews yet.</span>
+    <span class="text-muted">No reviews yet.</span>
     {% endif %}
   </p>
 
   <div id="review-feedback-area" class="mb-4">
     {% if not user.is_authenticated %}
     <div class="alert alert-info">
-      <a href="{% url 'account_login' %}?next={% url 'listing_detail' listing.id %}#review-section" class="alert-link">Log in</a> to leave a review.
+      <a href="{% url 'account_login' %}?next={% url 'listing_detail' listing.id %}#review-section"
+        class="alert-link">Log in</a> to leave a review.
     </div>
 
     {% elif user.profile == listing.provider %}
@@ -105,8 +122,10 @@
     <div class="alert alert-success d-flex justify-content-between align-items-center">
       <span>You have already reviewed this listing.</span>
       <div class="d-flex gap-2">
-        <button class="btn btn-sm btn-outline-success" type="button" data-bs-toggle="collapse" data-bs-target="#editReviewForm">Edit Your Review</button>
-        <a href="{% url 'delete_review' user_review.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this review?')">Delete</a>
+        <button class="btn btn-sm btn-outline-success" type="button" data-bs-toggle="collapse"
+          data-bs-target="#editReviewForm">Edit Your Review</button>
+        <a href="{% url 'delete_review' user_review.id %}" class="btn btn-sm btn-outline-danger"
+          onclick="return confirm('Are you sure you want to delete this review?')">Delete</a>
       </div>
     </div>
 
@@ -120,9 +139,9 @@
             <div class="star-rating">
               {% for radio in review_form.rating reversed %}
               {% if radio.data.value %}
-                {{ radio.tag }}
-                <label for="{{ radio.id_for_label }}">★</label>
-                {% endif %}
+              {{ radio.tag }}
+              <label for="{{ radio.id_for_label }}">★</label>
+              {% endif %}
               {% endfor %}
             </div>
           </div>
@@ -144,10 +163,10 @@
           <label class="form-label mb-2">Your Rating:</label>
           <div class="star-rating">
             {% for radio in review_form.rating reversed %}
-              {% if radio.data.value %}
-              {{ radio.tag }}
-              <label for="{{ radio.id_for_label }}">★</label>
-              {% endif %}
+            {% if radio.data.value %}
+            {{ radio.tag }}
+            <label for="{{ radio.id_for_label }}">★</label>
+            {% endif %}
             {% endfor %}
           </div>
         </div>
@@ -184,17 +203,17 @@
   {% empty %}
   <p>No reviews yet.</p>
   {% endfor %}
-  
+
   <p class="mt-4">
     {% if user.is_authenticated and user.profile == listing.provider %}
-        <a href="{% url 'profile' %}" class="text-decoration-none" style="color: #5b0694;">
-            &larr; Back to My Profile
-        </a>
+    <a href="{% url 'profile' %}" class="text-decoration-none" style="color: #5b0694;">
+      &larr; Back to My Profile
+    </a>
     {% else %}
-        <a href="javascript:history.back()" class="text-decoration-none" style="color: #5b0694;">
-            &larr; Back to Search Results
-        </a>
+    <a href="javascript:history.back()" class="text-decoration-none" style="color: #5b0694;">
+      &larr; Back to Search Results
+    </a>
     {% endif %}
-</p>
+  </p>
 </div>
 {% endblock %}

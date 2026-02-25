@@ -66,7 +66,12 @@
         <p>{{ form.price.label_tag|crispy }}<br>{{ form.price|as_crispy_field}}</p>
         <p>{{ form.is_active.label_tag|crispy }} {{ form.is_active|as_crispy_field }}</p>
 
-        <button type="submit">Create</button>
+        <div class="mt-4">
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold"
+                            style="background-color: #5b0694 !important; border-color: #5b0694 !important;">
+                        Publish Listing
+                    </button>
+                </div>
     </form>
 </div>
 <script src="{% static 'js/listing.js' %}"></script>
