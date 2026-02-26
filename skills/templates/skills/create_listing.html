@@ -17,8 +17,8 @@
             {{ form.skill_choice.label_tag|crispy }}<br>
             {{ form.skill_choice|as_crispy_field }}
             {% if form.skill_choice.errors %}
-        <div style="color:red;">{{ form.skill_choice.errors }}</div>
-        {% endif %}
+                <div style="color:red;">{{ form.skill_choice.errors }}</div>
+            {% endif %}
         </p>
 
         <div id="new-skill-box" style="display:none;">
@@ -26,8 +26,8 @@
                 {{ form.new_skill.label_tag|crispy }}<br>
                 {{ form.new_skill |as_crispy_field }}
                 {% if form.new_skill.errors %}
-            <div style="color:red;">{{ form.new_skill.errors }}</div>
-            {% endif %}
+                    <div style="color:red;">{{ form.new_skill.errors }}</div>
+                {% endif %}
             </p>
         </div>
 
@@ -35,29 +35,29 @@
             {{ form.location_text.label_tag|crispy }}<br>
             {{ form.location_text|as_crispy_field }}<br>
             {% if form.location_text.errors %}
-        <div style="color:red;">{{ form.location_text.errors }}</div>
-        {% endif %}
+                <div style="color:red;">{{ form.location_text.errors }}</div>
+            {% endif %}
         </p>
 
         <p>
             {{ form.photo_1.label_tag|crispy }}<br>
             {{ form.photo_1|as_crispy_field }}
             {% if form.photo_1.errors %}
-        <div style="color:red;">{{ form.photo_1.errors }}</div>
-        {% endif %}
+                <div style="color:red;">{{ form.photo_1.errors }}</div>
+            {% endif %}
 
 
-        {{ form.photo_2.label_tag|crispy }}<br>
-        {{ form.photo_2|as_crispy_field }}
-        {% if form.photo_2.errors %}
-        <div style="color:red;">{{ form.photo_2.errors }}</div>
-        {% endif %}
+            {{ form.photo_2.label_tag|crispy }}<br>
+            {{ form.photo_2|as_crispy_field }}
+            {% if form.photo_2.errors %}
+                <div style="color:red;">{{ form.photo_2.errors }}</div>
+            {% endif %}
 
-        {{ form.photo_3.label_tag|crispy }}<br>
-        {{ form.photo_3|as_crispy_field }}
-        {% if form.photo_3.errors %}
-        <div style="color:red;">{{ form.photo_3.errors }}</div>
-        {% endif %}
+            {{ form.photo_3.label_tag|crispy }}<br>
+            {{ form.photo_3|as_crispy_field }}
+            {% if form.photo_3.errors %}
+                <div style="color:red;">{{ form.photo_3.errors }}</div>
+            {% endif %}
         </p>
 
 
@@ -67,11 +67,11 @@
         <p>{{ form.is_active.label_tag|crispy }} {{ form.is_active|as_crispy_field }}</p>
 
         <div class="mt-4">
-                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold"
-                            style="background-color: #5b0694 !important; border-color: #5b0694 !important;">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold"
+                style="background-color: #5b0694 !important; border-color: #5b0694 !important;">
                         Publish Listing
-                    </button>
-                </div>
+            </button>
+        </div>
     </form>
 </div>
 <script src="{% static 'js/listing.js' %}"></script>

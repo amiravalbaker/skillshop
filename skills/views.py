@@ -15,19 +15,6 @@ from .forms import ProfileForm, SignUpForm, ListingForm, ReviewForm, MessageForm
 def home(request):
     return render(request, "skills/home.html")
    
-
-def signup(request):
-    if request.method == "POST":
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("login")
-    else:
-        form = SignUpForm()
-
-    return render(request, "skills/signup.html", {"form": form})
-
-
 @login_required
 def profile_view(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
@@ -178,37 +165,39 @@ def search(request):
 def edit_listing(request, listing_id):
     listing = get_object_or_404(Listing, id=listing_id)
 
-    # Owner-only permission
     if listing.provider != request.user.profile:
         raise PermissionDenied
 
-    # Pre-fill location_text from existing Location
-    initial = {}
-    if listing.location:
-        initial["location_text"] = listing.location.name
+    initial = {"location_text": listing.location.name if listing.location else ""}
 
     if request.method == "POST":
         form = ListingForm(request.POST, request.FILES, instance=listing)
         if form.is_valid():
             updated = form.save(commit=False)
-            messages.success(request, f'Your listing "{listing.skill.name}" has been updated!')
-            return redirect('profile') 
-        
-            # Geocode and set location (same as create)
-            location_text = form.cleaned_data.get("location_text", "").strip()
-            geo = Nominatim(user_agent="skillshop").geocode(location_text)
 
-            if not geo:
-                form.add_error("location_text", "Could not find that location. Try a postcode or full town/city name.")
-            else:
-                loc_obj, _ = Location.objects.get_or_create(
-                    name=location_text,
-                    defaults={"latitude": geo.latitude, "longitude": geo.longitude},
-                )
-                updated.location = loc_obj
-                updated.provider = listing.provider
-                updated.save()
-                return redirect("home")
+            # Geocoding logic
+            location_text = form.cleaned_data.get("location_text", "").strip()
+            if location_text:
+                geolocator = Nominatim(user_agent="skillshop")
+                geo = geolocator.geocode(location_text)
+                if geo:
+                    loc_obj, _ = Location.objects.get_or_create(
+                        name=location_text,
+                        defaults={"latitude": geo.latitude, "longitude": geo.longitude},
+                    )
+                    updated.location = loc_obj
+                else:
+                    form.add_error("location_text", "Location not found.")
+                    return render(request, "skills/edit_listing.html", {"form": form, "listing": listing})
+
+            # THE FIX: Save everything first
+            updated.save() 
+            
+            # Add the message to the session
+            messages.success(request, f'Changes to "{updated.skill.name}" saved successfully!')
+            
+            # Redirect to the Detail page so they see the carousel
+            return redirect('listing_detail', listing_id=updated.id) 
     else:
         form = ListingForm(instance=listing, initial=initial)
 
@@ -346,6 +335,7 @@ def conversation_detail(request, conversation_id):
         "other": other,
         "user_is_provider": user_is_provider, # Added this
     })
+
 #delete listing view - provider only
 @login_required
 def delete_listing(request, listing_id):

@@ -56,10 +56,14 @@ INSTALLED_APPS = [
 ]
 
 SITE_ID = 1
+# Where to go after a successful login/signup
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+#LOGOUT_REDIRECT_URL = '/'
+# Where to go after logging out
 ACCOUNT_LOGOUT_REDIRECT_URL = "/"
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Tell Allauth we are strictly using usernames for now
+ACCOUNT_AUTHENTICATION_METHOD = 'username'
+ACCOUNT_EMAIL_REQUIRED = False
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5" 
 CRISPY_TEMPLATE_PACK = "bootstrap5"

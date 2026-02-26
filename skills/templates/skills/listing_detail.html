@@ -10,7 +10,7 @@
         <div class="row g-0 align-items-center">
           <div class="col-12 col-md-3">
             <div id="listingCarousel" class="carousel slide rounded-start h-100" data-bs-ride="carousel">
-              <div class="carousel-inner h-100" style="background-color: #f8f9fa;">
+              <div class="carousel-inner h-100">
                 <div class="carousel-item active">
                   {% if listing.provider.profile_image %}
                     <img src="{{ listing.provider.profile_image.url }}" class="d-block w-100 h-100"
@@ -73,7 +73,7 @@
       </div>
 
       <div class="card card-body shadow-sm mb-4">
-        <h5>About the Provider</h5>
+        <h4>About the Provider</h4>
         <p class="mb-3">{{ listing.provider.bio|default:"(No bio provided)" }}</p>
         <h5>Description</h5>
         <p>{{ listing.description|default:"(No description set)" }}</p>

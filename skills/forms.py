@@ -30,6 +30,11 @@ class ListingForm(forms.ModelForm):
     class Meta:
         model = Listing
         fields = ["description", "price", "is_active", "photo_1", "photo_2", "photo_3"]
+        widgets = {
+            'photo_1': forms.FileInput(),
+            'photo_2': forms.FileInput(),
+            'photo_3': forms.FileInput(),
+        }
 
     def __init__(self, *args, **kwargs):
         # ⭐ Safely extract search_mode, default False 

@@ -1,5 +1,3 @@
-console.log("Search page JS loaded");
-
 document.addEventListener("DOMContentLoaded", function () {
     const locationInput = document.getElementById("location-input");
     const latField = document.getElementById("lat");
