@@ -12,11 +12,22 @@
         {% if form.non_field_errors %}
         <div style="color:red;">{{ form.non_field_errors }}</div>
         {% endif %}
+        
+        <div class="card border-primary mb-3">
+            <div class="card-body">
+                <div class="form-check form-switch">
+                    {{ form.is_provider|as_crispy_field }}
+                    <small class="d-block mt-1">
+                        Switch this on to become a provider and start creating skill listings.
+                    </small>
+                </div>
+            </div>
+        </div>
 
         <p>
-            {{ form.profile_image.label_tag|crispy }}<br>
-            {{ form.profile_image|as_crispy_field }}
-            {% if form.profile_image.errors %}
+        {{ form.profile_image.label_tag|crispy }}<br>
+        {{ form.profile_image|as_crispy_field }}
+        {% if form.profile_image.errors %}
         <div style="color:red;">{{ form.profile_image.errors }}</div>
         {% endif %}
         </p>
@@ -24,11 +35,9 @@
         <p>{{ form.first_name.label_tag|crispy }}<br>{{ form.first_name|as_crispy_field}}</p>
         <p>{{ form.last_name.label_tag|crispy }}<br>{{ form.last_name|as_crispy_field }}</p>
         <p>{{ form.bio.label_tag|crispy }}<br>{{ form.bio |as_crispy_field }}</p>
-        <p>{{ form.is_provider.label_tag|crispy }} {{ form.is_provider|as_crispy_field }}</p>
 
         <div class="mt-4">
-            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold"
-                style="background-color: #5b0694 !important; border-color: #5b0694 !important;">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
                 Save Profile Changes
             </button>
         </div>

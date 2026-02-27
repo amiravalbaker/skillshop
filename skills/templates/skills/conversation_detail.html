@@ -12,6 +12,9 @@
   <p>Messaging: <strong>{{ other.display_name }}</strong></p>
 {% endif %}
 
+
+{# Only show this whole block if there is at least one message #}
+{% if messages %}
 <div class="card shadow-sm mb-3">
   <div class="card-body" style="max-height: 420px; overflow-y: auto;">
     {% for m in messages %}
@@ -22,11 +25,14 @@
         <small class="text-muted">{{ m.created_at|date:"d M H:i" }}</small>
         <div>{{ m.body|linebreaksbr }}</div>
       </div>
-      <hr class="my-2">
-    {% empty %}
+        {# Only show the line if it's NOT the last message #}
+        {% if not forloop.last %}
+          <hr class="my-2">
+        {% endif %}
     {% endfor %}
   </div>
 </div>
+{% endif %}
 
 <form method="post" class="card card-body shadow-sm">
   {% csrf_token %}

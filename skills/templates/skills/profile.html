@@ -8,14 +8,11 @@
 
             <div class="card shadow-sm mb-4">
                 <div class="row g-0 align-items-center">
-                    <div class="col-12 col-md-3 bg-light d-flex align-items-center justify-content-center"
-                        style="min-height: 200px;">
+                    <div class="col-12 col-md-3 bg-light profile-image-col">
                         {% if profile.profile_image %}
-                        <img src="{{ profile.profile_image.url }}" class="img-fluid w-100 h-100"
-                            style="object-fit: cover;">
+                            <img src="{{ profile.profile_image.url }}" alt="Profile image">
                         {% else %}
-                        <img src="{% static 'images/default-profile.jpg' %}" class="img-fluid w-100 h-100"
-                            alt="Default profile image">
+                            <img src="{% static 'images/default-profile.jpg' %}" alt="Default profile image">
                         {% endif %}
                     </div>
 
@@ -24,63 +21,68 @@
                             <h3 class="card-title mb-1 text-dark fw-bold">{{ profile.display_name }}</h3>
                             <p class="mb-3 text-dark">
                                 <strong>Status:</strong>
-                                {% if profile.is_provider %} Verified Provider {% else %} Member {% endif %}
+                                {% if profile.is_provider %} Verified Provider 
+                                {% else %} Member 
+                                {% endif %}
                             </p>
-                            <div>
-                                <a href="{% url 'edit_profile' %}" class="btn btn-sm btn-outline-primary px-4">
-                                    Edit Profile
-                                </a>
-                            </div>
+                            <a href="{% url 'edit_profile' %}" class="btn btn-sm btn-outline-primary px-4">
+                                Edit Profile
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h4 class="mb-0 text-dark fw-bold">My Skill Listings</h4>
-                    <a href="{% url 'create_listing' %}" class="btn btn-sm btn-primary">+ Add New Listing</a>
-                </div>
+            {% if profile.is_provider %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                        <h4 class="mb-0 text-dark fw-bold">My Skill Listings</h4>
+                            <a href="{% url 'create_listing' %}" class="btn btn-sm btn-primary">+ Add New Listing</a>
+                    </div>
 
-                <div class="list-group list-group-flush">
-                    {% for listing in listings %}
-                    <a href="{% url 'listing_detail' listing.id %}" class="list-group-item list-group-item-action py-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5 class="mb-0 text-dark fw-bold">{{ listing.skill.name }}</h5>
-                                <small class="text-muted">Price: £{{ listing.price }} | Location: {{ listing.location.name|default:"Not set" }}</small>
+                    <div class="list-group list-group-flush">
+                        {% for listing in listings %}
+                            <a href="{% url 'listing_detail' listing.id %}" class="list-group-item list-group-item-action py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-0 text-dark fw-bold">{{ listing.skill.name }}</h5>
+                                        <small class="text-muted">Price: £{{ listing.price }} | Location: {{ listing.location.name|default:"Not set" }}</small>
+                                    </div>
+                                </div>
+                            </a>
+                        {% empty %}
+                            <div class="p-4 text-center">
+                                <p class="text-muted mb-0">You haven't created any listings yet.</p>
                             </div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-
+                        {% endfor %}
+                    </div>
+                </div>   
+            {% endif %}
 
             {% if inbox %}
-            <h4 class="mb-3 text-dark fw-bold">Recent Messages</h4>
-            <div class="list-group shadow-sm mb-4">
-                {% for conv, other, last_msg in inbox %}
-                <a class="list-group-item list-group-item-action py-3" href="{% url 'conversation_detail' conv.id %}">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <strong class="text-dark">
-                            {% if other %}{{ other.display_name }}
-                            {% else %}Conversation
-                            {% endif%}
-                        </strong>
-                        <small class="text-muted">{{ conv.updated_at|date:"d M, H:i" }}</small>
-                    </div>
+                <h4 class="mb-3 text-dark fw-bold">Recent Messages</h4>
+                <div class="list-group shadow-sm mb-4">
+                    {% for conv, other, last_msg in inbox %}
+                        <a class="list-group-item list-group-item-action py-3" href="{% url 'conversation_detail' conv.id %}">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="text-dark">
+                                {% if other %}{{ other.display_name }}
+                                {% else %}Conversation
+                                {% endif%}
+                                </strong>
+                                <small class="text-muted">{{ conv.updated_at|date:"d M, H:i" }}</small>
+                            </div>
 
-                    <div class="small mb-1 text-dark">
-                        {% if conv.listing %}
-                            <strong>About:</strong> {{ conv.listing.skill.name }}
-                        {% endif %}
-                    </div>
-                </a>
-                {% endfor %}
-            </div>
+                            <div class="small mb-1 text-dark">
+                                {% if conv.listing %}
+                                <strong>About:</strong> {{ conv.listing.skill.name }}
+                                {% endif %}
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
             {% endif %}
         </div>
-    </div>
+    </div>    
 </div>
 {% endblock %}
